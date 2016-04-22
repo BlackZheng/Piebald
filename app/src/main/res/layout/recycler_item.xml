@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.blackzheng.me.piebald.view.AdjustableImageView
+        android:id="@+id/photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"/>
+    <RelativeLayout
+        android:id="@+id/info"
+        android:background="#AADDDDDD"
+        android:layout_alignBottom="@id/photo"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:padding="4dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            app:civ_border_width="2dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            app:civ_border_color="#FF0F1318"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
+        <TextView
+            android:id="@+id/username"
+            android:layout_toEndOf="@id/profile"
+            android:layout_toRightOf="@id/profile"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/like"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:src="@mipmap/like"/>
+        <TextView
+            android:id="@+id/like_num"
+            android:textSize="18sp"
+            android:layout_toStartOf="@id/like"
+            android:layout_toLeftOf="@id/like"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:gravity="center"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>
