@@ -6,6 +6,7 @@ This is my first project for development practice. I'm sure that there are many 
 
 ## Preview
 <img src="/screenshots/ad.jpg" alt="screenshot" title="screenshot" width="180" height="120" />
+
 <img src="/screenshots/screenshot1.jpg" alt="screenshot" title="screenshot" width="500" height="270" /> 
 <img src="/screenshots/screenshot2.png" alt="screenshot" title="screenshot" width="270" height="486" /><img src="/screenshots/screenshot3.png" alt="screenshot" title="screenshot" width="270" height="486" />
 
