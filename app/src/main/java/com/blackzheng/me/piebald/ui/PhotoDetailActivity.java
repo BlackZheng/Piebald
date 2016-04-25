@@ -7,12 +7,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -24,7 +22,7 @@ import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.Downloader;
-import com.blackzheng.me.piebald.util.database.StringUtil;
+import com.blackzheng.me.piebald.util.StringUtil;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 import com.google.gson.reflect.TypeToken;
 
@@ -114,7 +112,7 @@ public class PhotoDetailActivity extends BaseActivity {
         profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), ImageCacheManager
                 .getProfileListener(profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         if (detailed_photo.user.name != null)
-            photo_by.setText("By " + detailed_photo.user.name);
+            photo_by.setText("By " + Decoder.decodeStr(detailed_photo.user.name));
         if (detailed_photo.location != null)
             location.setText("In " + Decoder.decodeStr(detailed_photo.location.city) + ", " + Decoder.decodeStr(detailed_photo.location.country));
         if (detailed_photo.exif.make != null)

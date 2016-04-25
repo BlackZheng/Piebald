@@ -11,7 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,9 +66,6 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     protected String mCategory;
     private boolean isRefreshFromTop;
 
-    public ContentAdapter getAdapter() {
-        return mAdapter;
-    }
 
 
     @Override
@@ -79,7 +78,6 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mOldId = NOT_OLD_ID;
-
     }
 
     @Override
@@ -95,7 +93,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         animAdapter.setDuration(800);
         animAdapter.setInterpolator(new AccelerateInterpolator());
         list = (SuperRecyclerView) rootView.findViewById(R.id.list);
-        reviewonScreenChanged(getResources().getConfiguration());
+        reviewOnScreenChanged(getResources().getConfiguration());
         list.setAdapter(animAdapter);
         list.setRefreshingColorResources(android.R.color.holo_orange_light, android.R.color.holo_blue_light,
                 android.R.color.holo_green_light, android.R.color.holo_red_light);
@@ -203,7 +201,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         };
     }
 
-    private void reviewonScreenChanged(Configuration newConfig) {
+    private void reviewOnScreenChanged(Configuration newConfig) {
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //横屏
             list.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
@@ -280,7 +278,6 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
 
     @Override
     public void onItemClick(View view, Photo photo, int position) {
-        String url = photo.links.self;
         Intent intent = new Intent(getActivity(), PhotoDetailActivity.class);
         intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
         intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
@@ -292,8 +289,8 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
 
     }
 
-    public void changeLayout() {
-        list.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+    public RecyclerView getRecyclerView(){
+        return list.getRecyclerView();
     }
 
     protected abstract GsonRequest getRequest(String category, String page);

@@ -72,7 +72,7 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
                 .getImageListener(holder.photo, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         holder.profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), ImageCacheManager
                 .getProfileListener(holder.profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
-        holder.username.setText(photo.user.name);
+        holder.username.setText(Decoder.decodeStr(photo.user.name));
         holder.like_num.setText(String.valueOf(photo.likes));
 
 

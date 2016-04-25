@@ -1,28 +1,31 @@
 package com.blackzheng.me.piebald.ui;
 
-import android.app.ActivityManager;
-import android.content.Context;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
-import com.blackzheng.me.piebald.App;
+
+
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.RequestManager;
 import com.blackzheng.me.piebald.ui.fragment.CategoryContentFragment;
 import com.blackzheng.me.piebald.ui.fragment.ContentFragment;
 import com.blackzheng.me.piebald.ui.fragment.NewContentFragment;
+import com.blackzheng.me.piebald.ui.listener.OnDoubleClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +37,9 @@ import yalantis.com.sidemenu.interfaces.ScreenShotable;
 import yalantis.com.sidemenu.model.SlideMenuItem;
 import yalantis.com.sidemenu.util.ViewAnimator;
 
-public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnimatorListener {
+public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnimatorListener, OnDoubleClickListener{
 
-    ListView listView;
-    String[] datas = {"item1", "item2", "item3", "item4", "item5"};
+
     private DrawerLayout drawerLayout;
     private Toolbar mToolbar;
     private ActionBarDrawerToggle drawerToggle;
@@ -65,6 +67,7 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
             }
         });
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        registerDoubleClickListener(mToolbar, this);
         initActionBar(mToolbar);
         getSupportActionBar().setTitle(mCategory);
         initDrawerToggle();
@@ -141,6 +144,9 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
+        mContentFragment = "New".equals(mCategory) ? NewContentFragment.newInstance(mCategory) : CategoryContentFragment.newInstance(mCategory);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContentFragment).commit();
+        viewAnimator = new ViewAnimator<>(this, list, mContentFragment, drawerLayout, this);
     }
 
     @Override
@@ -176,9 +182,9 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
         findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
         animator.start();
-        ContentFragment contentFragment = "New".equals(mCategory) ? NewContentFragment.newInstance(mCategory) : CategoryContentFragment.newInstance(mCategory);
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, contentFragment).commit();
-        return contentFragment;
+        mContentFragment = "New".equals(mCategory) ? NewContentFragment.newInstance(mCategory) : CategoryContentFragment.newInstance(mCategory);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContentFragment).commit();
+        return mContentFragment;
     }
 
     @Override
@@ -212,32 +218,59 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
     public void addViewToContainer(View view) {
         linearLayout.addView(view);
     }
-}
 
-//    private Response.Listener<Photo> responseListener(){
-//            return new Response.Listener<Photo>(){
-//
-//                @Override
-//                public void onResponse(Photo photo) {
-//
-//                    String text = "id:" + photo.id + ",color:" + photo.color + ", make:" + photo.exif.make +
-//                            ",model:" + photo.exif.model + ", city:" +photo.location.city + ", country:" + photo.location.country +
-//                             ", latitude:" + photo.location.position.latitude + ", longitude:" + photo.location.position.longitude +
-//                            ", raw:" + photo.urls.raw + ", categories:" + photo.categories.get(0).title;
-//                    textView.setText(text);
-//
-//                }
-//            };
-//    }
-//
-//    protected Response.ErrorListener errorListener() {
-//        return new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//
-//                textView.setText("Something is wrong");
-//
-//            }
-//        };
-//    }
-//}
+    @Override
+    public void OnSingleClick(View v) {
+
+    }
+
+    @Override
+    public void OnDoubleClick(View v) {
+        mContentFragment.getRecyclerView().smoothScrollToPosition(0);
+    }
+
+    public static void registerDoubleClickListener(View view, final OnDoubleClickListener listener){
+        if(listener==null) return;
+        view.setOnClickListener(new View.OnClickListener() {
+            private static final int DOUBLE_CLICK_TIME = 350;        //双击间隔时间350毫秒
+            private boolean waitDouble = true;
+
+            private Handler handler = new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    listener.OnSingleClick((View)msg.obj);
+                }
+
+            };
+
+            //等待双击
+            public void onClick(final View v) {
+                if(waitDouble){
+                    waitDouble = false;        //与执行双击事件
+                    new Thread(){
+
+                        public void run() {
+                            try {
+                                Thread.sleep(DOUBLE_CLICK_TIME);
+                            } catch (InterruptedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }    //等待双击时间，否则执行单击事件
+                            if(!waitDouble){
+                                //如果过了等待事件还是预执行双击状态，则视为单击
+                                waitDouble = true;
+                                Message msg = handler.obtainMessage();
+                                msg.obj = v;
+                                handler.sendMessage(msg);
+                            }
+                        }
+
+                    }.start();
+                }else{
+                    waitDouble = true;
+                    listener.OnDoubleClick(v);    //执行双击
+                }
+            }
+        });
+    }
+}
