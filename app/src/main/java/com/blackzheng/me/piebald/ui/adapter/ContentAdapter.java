@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
+import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -31,9 +33,13 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
     private Resources mResource;
     private Drawable mDefaultImageDrawable;
     private OnItemClickLitener mOnItemClickLitener;
+    private int width;
 
     public ContentAdapter(Context context, Cursor c) {
         super(context, c);
+        width = ((WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay().getWidth();
         mResource = context.getResources();
     }
 
@@ -69,7 +75,9 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
         });
 
         holder.photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), ImageCacheManager
-                .getImageListener(holder.photo, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
+                .getImageListener(holder.photo,
+                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width * photo.height / photo.height),
+                        mDefaultImageDrawable), 0, 0);
         holder.profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), ImageCacheManager
                 .getProfileListener(holder.profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         holder.username.setText(Decoder.decodeStr(photo.user.name));
