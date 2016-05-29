@@ -18,6 +18,7 @@
     <string name="wrong_message">Loading failed, something wrong with server or network.</string>
     <string name="wrong_path">Please choose a path within /storage/emulated/0</string>
     <string name="download_failure">Sorry, downloading image is unsupported for your device temporarily.</string>
+    <string name="file_exists">This photo exists in downloading path</string>
 
     <string name="path">Downloading Path</string>
     <string name="about">About</string>

@@ -30,7 +30,7 @@ public class SettingActivity extends BaseActivity {
         setContentView(R.layout.activity_setting);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initActionBar(mToolbar);
-        mOldPath = PathUtils.rel2abs(Downloader.getPath());
+        mOldPath = Downloader.getPath();
         editor = getSharedPreferences("Piebald", MODE_PRIVATE).edit();
         mDirectoryTextView = (TextView) findViewById(R.id.path);
         mDirectoryTextView.setText(mOldPath);
@@ -83,7 +83,7 @@ public class SettingActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mNewPath != null) {
-            Downloader.setPath(PathUtils.abs2rel(mNewPath));
+            Downloader.setPath(mNewPath);
             editor.putString("path", mNewPath);
             editor.commit();
         }

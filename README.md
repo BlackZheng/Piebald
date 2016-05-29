@@ -45,6 +45,8 @@ and [stormzhang](https://github.com/stormzhang) for [9gag](https://github.com/st
 
 * [Android-DirectoryChooser](https://github.com/passy/Android-DirectoryChooser)
 
+* [FileDownloader](https://github.com/lingochamp/FileDownloader)
+
 
 ## Developer
 

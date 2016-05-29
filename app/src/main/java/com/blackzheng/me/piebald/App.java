@@ -7,6 +7,7 @@ package com.blackzheng.me.piebald;
 import android.app.Application;
 import android.content.Context;
 
+import com.liulishuo.filedownloader.FileDownloader;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -25,6 +26,7 @@ public class App extends Application {
         super.onCreate();
         sContext = getApplicationContext();
         initImageLoader(getApplicationContext());
+        FileDownloader.init(getContext());
     }
 
     public static Context getContext() {

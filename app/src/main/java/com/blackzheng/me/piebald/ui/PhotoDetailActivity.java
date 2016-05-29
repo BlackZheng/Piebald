@@ -93,7 +93,7 @@ public class PhotoDetailActivity extends BaseActivity {
             download.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Downloader.download(PhotoDetailActivity.this, downloadUrl, id);
+                    Downloader.download(PhotoDetailActivity.this, downloadUrl, id + ".jpg");
                 }
             });
     }

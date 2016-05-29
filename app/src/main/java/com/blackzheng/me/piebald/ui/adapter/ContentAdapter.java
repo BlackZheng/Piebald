@@ -65,7 +65,6 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
         }else{
             mDefaultImageDrawable = new ColorDrawable(mResource.getColor(COLORS[cursor.getPosition() % COLORS.length]));
         }
-
         holder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,7 +75,7 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
 
         holder.photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), ImageCacheManager
                 .getImageListener(holder.photo,
-                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width * photo.height / photo.height),
+                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*photo.height/photo.width),
                         mDefaultImageDrawable), 0, 0);
         holder.profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), ImageCacheManager
                 .getProfileListener(holder.profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
