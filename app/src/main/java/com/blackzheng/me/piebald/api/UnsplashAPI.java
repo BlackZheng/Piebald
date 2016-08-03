@@ -6,7 +6,7 @@ package com.blackzheng.me.piebald.api;
 public class UnsplashAPI {
     public static final String HOST = "https://api.unsplash.com";
 
-    public static final String CLIENT_ID = "?client_id=f38967a340ba240a903458e54fedb4346f02c86cf4bbfd2d867734bc78a03339";
+    public static final String CLIENT_ID = "?client_id=73e6a5754dc21008e77d834adf6f182b1375547bc65fa57e2f9200d2e3dbe8c3";
 
     public static final String PHOTOS = "/photos";
 
