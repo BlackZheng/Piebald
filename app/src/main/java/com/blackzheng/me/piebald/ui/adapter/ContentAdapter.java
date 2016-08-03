@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
-import com.blackzheng.me.piebald.util.DrawableUtil;
+import com.blackzheng.me.piebald.util.database.DrawableUtil;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;

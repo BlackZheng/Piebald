@@ -22,6 +22,7 @@ import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.Downloader;
+import com.blackzheng.me.piebald.util.ShareImgToWX;
 import com.blackzheng.me.piebald.util.StringUtil;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 import com.google.gson.reflect.TypeToken;

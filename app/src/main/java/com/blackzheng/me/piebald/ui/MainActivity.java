@@ -47,16 +47,18 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
     private ContentFragment mContentFragment;
     private ViewAnimator viewAnimator;
     private LinearLayout linearLayout;
-    private String mCategory = "New";
+    private String mCategory = "New";//default category
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mContentFragment = NewContentFragment.newInstance(mCategory);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, mContentFragment)
                 .commit();
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
@@ -70,6 +72,7 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
         registerDoubleClickListener(mToolbar, this);
         initActionBar(mToolbar);
         getSupportActionBar().setTitle(mCategory);
+
         initDrawerToggle();
         createMenuList();
         viewAnimator = new ViewAnimator<>(this, list, mContentFragment, drawerLayout, this);
@@ -228,7 +231,7 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
     public void OnDoubleClick(View v) {
         mContentFragment.getRecyclerView().smoothScrollToPosition(0);
     }
-
+    //实现双击toolbar回到列表顶部
     public static void registerDoubleClickListener(View view, final OnDoubleClickListener listener){
         if(listener==null) return;
         view.setOnClickListener(new View.OnClickListener() {

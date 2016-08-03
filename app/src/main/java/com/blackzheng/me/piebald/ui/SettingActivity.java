@@ -69,7 +69,7 @@ public class SettingActivity extends BaseActivity {
 
             if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                 mNewPath = data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
-                if (mNewPath.startsWith(PathUtils.abs_prefix)) {
+                if (mNewPath.startsWith(PathUtils.path_Prefix)) {
                     mDirectoryTextView.setText(mNewPath);
                 } else {
                     ToastUtils.showLong(R.string.wrong_path);
