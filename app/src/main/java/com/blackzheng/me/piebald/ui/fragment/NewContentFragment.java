@@ -21,8 +21,8 @@ public class NewContentFragment extends ContentFragment{
         return newContentFragment;
     }
     @Override
-    protected GsonRequest getRequest(String category, String page) {
-        return new GsonRequest(String.format(UnsplashAPI.LIST_PHOTOS, page), new TypeToken<List<Photo>>(){}.getType(),
+    protected GsonRequest getRequest(String category, int page) {
+        return new GsonRequest(String.format(UnsplashAPI.LIST_PHOTOS, String.valueOf(page)), new TypeToken<List<Photo>>(){}.getType(),
                 responseListener(), errorListener());
     }
 

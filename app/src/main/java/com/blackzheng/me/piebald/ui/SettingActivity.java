@@ -30,7 +30,7 @@ public class SettingActivity extends BaseActivity {
         setContentView(R.layout.activity_setting);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initActionBar(mToolbar);
-        mOldPath = PathUtils.rel2abs(Downloader.getPath());
+        mOldPath = Downloader.getPath();
         editor = getSharedPreferences("Piebald", MODE_PRIVATE).edit();
         mDirectoryTextView = (TextView) findViewById(R.id.path);
         mDirectoryTextView.setText(mOldPath);
@@ -69,7 +69,7 @@ public class SettingActivity extends BaseActivity {
 
             if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                 mNewPath = data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
-                if (mNewPath.startsWith(PathUtils.abs_prefix)) {
+                if (mNewPath.startsWith(PathUtils.path_Prefix)) {
                     mDirectoryTextView.setText(mNewPath);
                 } else {
                     ToastUtils.showLong(R.string.wrong_path);
@@ -83,7 +83,7 @@ public class SettingActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mNewPath != null) {
-            Downloader.setPath(PathUtils.abs2rel(mNewPath));
+            Downloader.setPath(mNewPath);
             editor.putString("path", mNewPath);
             editor.commit();
         }

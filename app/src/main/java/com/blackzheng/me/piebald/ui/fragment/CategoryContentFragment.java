@@ -23,8 +23,8 @@ public class CategoryContentFragment extends ContentFragment {
         return categoryContentFragment ;
     }
     @Override
-    protected GsonRequest getRequest(String category, String page) {
-        return new GsonRequest(String.format(UnsplashAPI.GET_PHOTOS_BY_CATEGORY, ContentDataHelper.CATEGORY_ID.get(mCategory), page), new TypeToken<List<Photo>>(){}.getType(),
+    protected GsonRequest getRequest(String category, int page) {
+        return new GsonRequest(String.format(UnsplashAPI.GET_PHOTOS_BY_CATEGORY, ContentDataHelper.CATEGORY_ID.get(mCategory), String.valueOf(page)), new TypeToken<List<Photo>>(){}.getType(),
                 responseListener(), errorListener());
     }
 }

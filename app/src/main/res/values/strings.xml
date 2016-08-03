@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Piebald</string>
     <string name="action_settings">Settings</string>
+    <string name="share">Share</string>
+    <string name="sharr_to">Share To</string>
+    <string name="wechat">WeChat</string>
+    <string name="moments">Moments</string>
     <string name="details">Details</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
@@ -18,10 +22,11 @@
     <string name="wrong_message">Loading failed, something wrong with server or network.</string>
     <string name="wrong_path">Please choose a path within /storage/emulated/0</string>
     <string name="download_failure">Sorry, downloading image is unsupported for your device temporarily.</string>
+    <string name="file_exists">This photo exists in downloading path</string>
 
     <string name="path">Downloading Path</string>
     <string name="about">About</string>
-    <string name="version">v1.0.0</string>
+    <string name="version">v1.3.0</string>
     <string name="declaration">Declaration</string>
     <string name="declaration_content">&#160;&#160;&#160;&#160;Piebald is an application for development practice. All
         pictures and related information are provided by Unsplash.com. </string>
@@ -34,4 +39,9 @@
     <string name="github_add">github.com/BlackZheng</string>
     <string name="donate">Donate</string>
     <string name="donate_requirement">Require Alipay</string>
+
+    <string name="errcode_success">发送成功</string>
+    <string name="errcode_cancel">发送取消</string>
+    <string name="errcode_deny">发送被拒绝</string>
+    <string name="errcode_unknown">发送返回</string>
 </resources>

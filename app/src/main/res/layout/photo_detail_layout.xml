@@ -31,10 +31,10 @@
                     android:id="@+id/profile"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    app:civ_border_width="2dp"
+                    app:civ_border_width="1dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginLeft="10dp"
-                    app:civ_border_color="#FF0F1318"
+                    app:civ_border_color="#33334C"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
                     android:src="@drawable/default_profile"/>
@@ -69,10 +69,6 @@
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
                     android:gravity="center_vertical">
-                    <!--<ImageView-->
-                        <!--android:layout_width="30dp"-->
-                        <!--android:layout_height="30dp"-->
-                        <!--android:src="@mipmap/download"/>-->
                     <ImageButton
                         android:id="@+id/download"
                         android:layout_width="50dp"
