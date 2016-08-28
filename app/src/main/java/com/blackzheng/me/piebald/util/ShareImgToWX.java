@@ -2,14 +2,13 @@ package com.blackzheng.me.piebald.util;
 
 import android.graphics.Bitmap;
 
-
 import com.blackzheng.me.piebald.App;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXImageObject;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 
-/**
+/**分享到微信的逻辑
  * Created by BlackZheng on 2016/4/26.
  */
 public class ShareImgToWX {

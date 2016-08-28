@@ -10,7 +10,6 @@ import android.view.View;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.ShareBitmapHolder;
-import com.blackzheng.me.piebald.util.ShareImgToWX;
 import com.blackzheng.me.piebald.view.HideableToolbar;
 import com.github.lzyzsd.circleprogress.CircleProgress;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -69,8 +68,8 @@ public class PhotoZoomingActivity extends BaseActivity {
         });
 
         String imageUrl = Decoder.decodeURL(getIntent().getStringExtra(IMAGE_URL));
-        DisplayImageOptions options = new DisplayImageOptions.Builder().cacheOnDisc(true)
-                .considerExifParams(true).build();
+        DisplayImageOptions options = new DisplayImageOptions.Builder().cacheOnDisk(true)
+                .considerExifParams(false).build();
         ImageLoader.getInstance().displayImage(imageUrl, photoView, options, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
@@ -87,6 +86,7 @@ public class PhotoZoomingActivity extends BaseActivity {
                 progress.setProgress(100 * current / total);
             }
         });
+
     }
 
     @Override

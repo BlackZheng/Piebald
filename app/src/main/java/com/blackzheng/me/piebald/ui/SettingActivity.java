@@ -1,19 +1,31 @@
 package com.blackzheng.me.piebald.ui;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.blackzheng.me.piebald.R;
+import com.blackzheng.me.piebald.dao.CollectionDataHelper;
+import com.blackzheng.me.piebald.dao.PhotoCollectionDataHelper;
+import com.blackzheng.me.piebald.dao.UserAlbumDataHelper;
+import com.blackzheng.me.piebald.model.Collection;
+import com.blackzheng.me.piebald.util.CacheUtil;
 import com.blackzheng.me.piebald.util.Downloader;
 import com.blackzheng.me.piebald.util.PathUtils;
+import com.blackzheng.me.piebald.util.TaskUtils;
 import com.blackzheng.me.piebald.util.ToastUtils;
 
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SettingActivity extends BaseActivity {
     private static final int REQUEST_DIRECTORY = 0;
@@ -21,20 +33,30 @@ public class SettingActivity extends BaseActivity {
     private Toolbar mToolbar;
     private String mOldPath;
     private String mNewPath;
-    private TextView mDirectoryTextView;
+    private double cacheSize;
+    private TextView mDirectoryTextView, size;
     private SharedPreferences.Editor editor;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        initData();
+        initViews();
+        setupViews();
+        getCacheSize();
+
+    }
+    private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initActionBar(mToolbar);
-        mOldPath = Downloader.getPath();
-        editor = getSharedPreferences("Piebald", MODE_PRIVATE).edit();
         mDirectoryTextView = (TextView) findViewById(R.id.path);
-        mDirectoryTextView.setText(mOldPath);
+        size = (TextView) findViewById(R.id.cache_size);
+    }
 
+    private void setupViews() {
+        mDirectoryTextView.setText(mOldPath);
         // Set up click handler for "Choose Directory" button
         findViewById(R.id.choose_path)
                 .setOnClickListener(new View.OnClickListener() {
@@ -58,7 +80,28 @@ public class SettingActivity extends BaseActivity {
                         startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
                     }
                 });
+    }
 
+    private void initData() {
+        mOldPath = Downloader.getPath();
+        editor = getSharedPreferences("Piebald", MODE_PRIVATE).edit();
+    }
+
+    private void getCacheSize() {
+
+        TaskUtils.executeAsyncTask(new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                cacheSize = CacheUtil.getDiskCacheSize() * 1.0/ (1024 * 1024);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+                size.setText(String.format("%.2f", cacheSize)+ "MB");
+            }
+        });
     }
 
     @Override
@@ -87,11 +130,38 @@ public class SettingActivity extends BaseActivity {
             editor.putString("path", mNewPath);
             editor.commit();
         }
-
     }
 
     public void about(View view) {
         Intent intent = new Intent(this, AboutActivity.class);
         startActivity(intent);
+    }
+    public void clearCache(View view){
+        TaskUtils.executeAsyncTask(new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                dialog = ProgressDialog.show(SettingActivity.this, "", "Clearing", true, false);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                dialog.dismiss();
+                getCacheSize();
+            }
+
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                UserAlbumDataHelper.deleteAllRows();
+                CollectionDataHelper.deleteAllRows();
+                int row = PhotoCollectionDataHelper.deleteAllRows();
+                Log.d("database", row + "");
+                CacheUtil.clearDiskCache();
+                return null;
+            }
+        });
     }
 }

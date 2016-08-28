@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<FrameLayout android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <FrameLayout
-        android:id="@+id/container"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.malinskiy.superrecyclerview.SuperRecyclerView
+        android:id="@+id/list"
+        android:background="#FFFFFF"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_empty="@layout/emptyview"
+        app:layout_moreProgress="@layout/view_more_progress"
+        app:mainLayoutId="@layout/layout_recyclerview_verticalscroll"
+        app:recyclerClipToPadding="false"
+        app:scrollbarStyle="outsideOverlay" />
 
-        <com.malinskiy.superrecyclerview.SuperRecyclerView
-            android:id="@+id/list"
-            android:background="#FFFFFF"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_empty="@layout/emptyview"
-            app:layout_moreProgress="@layout/view_more_progress"
-            app:mainLayoutId="@layout/layout_recyclerview_verticalscroll"
-            app:recyclerClipToPadding="false"
-            app:recyclerPadding="0dp"
-            app:scrollbarStyle="outsideOverlay"/>
-
-    </FrameLayout>
-</io.codetail.widget.RevealFrameLayout>
+</FrameLayout>
