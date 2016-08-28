@@ -12,9 +12,28 @@ public class UnsplashAPI {
 
     public static final String CATEGORIES = "/categories";
 
+    public static final String USER = "/users";
+
+    public static final String COLLECTIONS = "/collections";
+
     public static final String LIST_PHOTOS = HOST + PHOTOS + CLIENT_ID +  "&page=%1$s";
 
     public static final String GET_SPECIFIC_PHOTO = HOST + PHOTOS + "/%1$s" + CLIENT_ID;
 
     public static final String GET_PHOTOS_BY_CATEGORY = HOST + CATEGORIES + "/%1$s" + PHOTOS + CLIENT_ID + "&page=%2$s";
+
+    public static final String GET_USERPROFILE = HOST + USER + "/%1$s" + CLIENT_ID;
+
+    public static final String GET_PHOTOS_BY_USER = HOST + USER + "/%1$s"  + PHOTOS + CLIENT_ID + "&page=%2$s";
+
+    public static final String GET_RANDOM_PHOTOS = "https://source.unsplash.com/random/%1$sx%2$s";
+
+    public static final String GET_CURATED = HOST + COLLECTIONS + "/%1$s" + CLIENT_ID + "&page=%2$s";
+
+    public static final String GET_FEATURED_PHOTOS = HOST + COLLECTIONS + "/%1$s" + PHOTOS + CLIENT_ID + "&page=%2$s";
+
+    public static final String GET_CURATED_PHOTOS = HOST + COLLECTIONS + "/curated" + "/%1$s" + PHOTOS + CLIENT_ID + "&page=%2$s";
+
+    public static final String GET_A_FEATURED_COLLECTION = HOST + COLLECTIONS + "/%1$s" + CLIENT_ID;
+
 }

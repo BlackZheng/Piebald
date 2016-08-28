@@ -16,6 +16,7 @@ import android.widget.Filterable;
 public abstract class BaseAbstractRecycleCursorAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> implements Filterable,
         CursorFilter.CursorFilterClient {
 
+
     /**
      * Call when bind view with the cursor
      *
@@ -160,7 +161,7 @@ public abstract class BaseAbstractRecycleCursorAdapter<VH extends RecyclerView.V
      */
     @Override
     public long getItemId(int position) {
-        if (mDataValid && mCursor != null) {
+        if (mDataValid && mCursor != null && position > 0) {
             if (mCursor.moveToPosition(position)) {
                 return mCursor.getLong(mRowIDColumn);
             } else {

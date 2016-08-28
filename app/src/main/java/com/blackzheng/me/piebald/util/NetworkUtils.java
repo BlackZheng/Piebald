@@ -6,7 +6,7 @@ import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-/**
+/**用于判断用户的网络类型
  * Created by BlackZheng on 2016/4/14.
  */
 public class NetworkUtils {

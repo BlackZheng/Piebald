@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.blackzheng.me.piebald.view.AdjustableImageView
+            android:id="@+id/photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/profile"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginLeft="20dp"
+            android:layout_below="@id/photo"
+            app:civ_border_width="1dp"
+            app:civ_border_color="#33334C"
+            android:src="@drawable/default_profile"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/profile"
+            android:layout_below="@id/photo"
+            android:gravity="center" />
+
+        <ImageView
+            android:id="@+id/like"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_below="@id/photo"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="20dp"
+            android:src="@mipmap/like"/>
+        <TextView
+            android:id="@+id/like_num"
+            android:textSize="16sp"
+            android:layout_toStartOf="@id/like"
+            android:layout_toLeftOf="@id/like"
+            android:layout_below="@id/photo"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginRight="6dp"
+            android:gravity="center"
+            android:text="20"/>
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

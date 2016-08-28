@@ -1,134 +1,157 @@
 package com.blackzheng.me.piebald.ui;
 
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.LinearLayout;
-
-
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.FrameLayout;
 
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.RequestManager;
+import com.blackzheng.me.piebald.ui.adapter.DrawerAdapter;
 import com.blackzheng.me.piebald.ui.fragment.CategoryContentFragment;
+import com.blackzheng.me.piebald.ui.fragment.CollectionsFragment;
 import com.blackzheng.me.piebald.ui.fragment.ContentFragment;
-import com.blackzheng.me.piebald.ui.fragment.NewContentFragment;
 import com.blackzheng.me.piebald.ui.listener.OnDoubleClickListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
 
-import io.codetail.animation.SupportAnimator;
-import io.codetail.animation.ViewAnimationUtils;
-import yalantis.com.sidemenu.interfaces.Resourceble;
-import yalantis.com.sidemenu.interfaces.ScreenShotable;
-import yalantis.com.sidemenu.model.SlideMenuItem;
-import yalantis.com.sidemenu.util.ViewAnimator;
+@RuntimePermissions
+public class MainActivity extends BaseActivity implements DrawerAdapter.OnItemClickLitener, OnDoubleClickListener{
 
-public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnimatorListener, OnDoubleClickListener{
+    public static final String HEADER = "Header";
+    public static final String DIVIDER = "Divider";
+    public static final String NEW = "New";
+    public static final String BUILDINGS = "Buildings";
+    public static final String FOOD_AND_DRINK = "Food & Drink";
+    public static final String NATURE = "Nature";
+    public static final String PEOPLE = "People";
+    public static final String TECHNOLOGY = "Technology";
+    public static final String OBJECTS = "Objects";
+    public static final String FEATURED = "Featured";
+    public static final String CURATED = "Curated";
 
+    //对应侧滑菜单的列表项
+    private String[] mDrawerList = {
+            HEADER,
+            NEW,
+            BUILDINGS,
+            FOOD_AND_DRINK,
+            NATURE,
+            PEOPLE,
+            TECHNOLOGY,
+            OBJECTS,
+            DIVIDER,
+            FEATURED,
+            CURATED
+    };
 
-    private DrawerLayout drawerLayout;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private RecyclerView drawerlist;
     private Toolbar mToolbar;
-    private ActionBarDrawerToggle drawerToggle;
-    private List<SlideMenuItem> list = new ArrayList<>();
     private ContentFragment mContentFragment;
-    private ViewAnimator viewAnimator;
-    private LinearLayout linearLayout;
     private String mCategory = "New";//default category
+    private FrameLayout splashView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mContentFragment = NewContentFragment.newInstance(mCategory);
+        setContentView(R.layout.activity_main2);
+        initSplashView();//初始化启动页面
+        //请求权限
+        MainActivityPermissionsDispatcher.requestPermissionWithCheck(this);
+        mContentFragment = CategoryContentFragment.newInstance(mCategory);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_frame, mContentFragment)
                 .commit();
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.setScrimColor(Color.TRANSPARENT);
-        linearLayout = (LinearLayout) findViewById(R.id.left_drawer);
-        linearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.closeDrawers();
-            }
-        });
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        registerDoubleClickListener(mToolbar, this);
+        registerDoubleClickListener(mToolbar, this);//给toolbar注册双击监听
         initActionBar(mToolbar);
+        initDrawer();//初始化侧滑菜单
+
         getSupportActionBar().setTitle(mCategory);
 
-        initDrawerToggle();
-        createMenuList();
-        viewAnimator = new ViewAnimator<>(this, list, mContentFragment, drawerLayout, this);
-
 
     }
 
-    private void createMenuList() {
-        SlideMenuItem menuItem0 = new SlideMenuItem(ContentFragment.CLOSE, R.mipmap.icn_close);
-        list.add(menuItem0);
-        SlideMenuItem menuItem = new SlideMenuItem(ContentFragment.NEW, R.mipmap.n);
-        list.add(menuItem);
-        SlideMenuItem menuItem2 = new SlideMenuItem(ContentFragment.BUILDINGS, R.mipmap.building);
-        list.add(menuItem2);
-        SlideMenuItem menuItem3 = new SlideMenuItem(ContentFragment.FOOD_AND_DRINK, R.mipmap.foodanddrink);
-        list.add(menuItem3);
-        SlideMenuItem menuItem4 = new SlideMenuItem(ContentFragment.NATURE, R.mipmap.nature);
-        list.add(menuItem4);
-        SlideMenuItem menuItem5 = new SlideMenuItem(ContentFragment.PEOPLE, R.mipmap.people);
-        list.add(menuItem5);
-        SlideMenuItem menuItem6 = new SlideMenuItem(ContentFragment.TECHNOLOGY, R.mipmap.technology);
-        list.add(menuItem6);
-        SlideMenuItem menuItem7 = new SlideMenuItem(ContentFragment.OBJECTS, R.mipmap.object);
-        list.add(menuItem7);
-    }
-
-
-    private void initDrawerToggle() {
-        drawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                drawerLayout,         /* DrawerLayout object */
-                mToolbar,  /* nav drawer icon to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description */
-                R.string.drawer_close  /* "close drawer" description */
-        ) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                linearLayout.removeAllViews();
-                linearLayout.invalidate();
+    private void initSplashView() {
+        splashView = (FrameLayout) findViewById(R.id.splash_view);
+        AlphaAnimation animation=new AlphaAnimation(1.0f,1.0f);
+        animation.setDuration(2000);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                splashView.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, slideOffset);
-                if (slideOffset > 0.6 && linearLayout.getChildCount() == 0)
-                    viewAnimator.showMenuContent();
+            public void onAnimationEnd(Animation animation) {
+                splashView.setVisibility(View.GONE);
             }
 
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
             }
-        };
-        drawerLayout.setDrawerListener(drawerToggle);
+        });
+        splashView.setAnimation(animation);
+    }
+
+    @NeedsPermission(Manifest.permission.READ_PHONE_STATE)
+    void requestPermission(){
+        Log.d("Piebald", "Granted Photo Permission");
+    }
+    @OnShowRationale(Manifest.permission.READ_PHONE_STATE)
+    void showRationaleForCamera(final PermissionRequest request) {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.phone_permission_showRationale)
+                .setPositiveButton(R.string.button_allow, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        request.proceed();
+                    }
+                })
+                .setNegativeButton(R.string.button_deny, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        request.cancel();
+                    }
+                })
+                .show();
+    }
+
+    private void initDrawer(){
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_left);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
+        mDrawerToggle.syncState();
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        drawerlist = (RecyclerView) findViewById(R.id.drawer_list);
+        drawerlist.setLayoutManager(new LinearLayoutManager(this));
+        DrawerAdapter adapter = new DrawerAdapter(this, mDrawerList);
+        adapter.setOnItemClickLitener(this);
+        drawerlist.setAdapter(adapter);
     }
 
     @Override
@@ -138,18 +161,11 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
-        mContentFragment = "New".equals(mCategory) ? NewContentFragment.newInstance(mCategory) : CategoryContentFragment.newInstance(mCategory);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+        mContentFragment = CategoryContentFragment.newInstance(mCategory);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContentFragment).commit();
-        viewAnimator = new ViewAnimator<>(this, list, mContentFragment, drawerLayout, this);
     }
 
     @Override
@@ -173,53 +189,6 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private ScreenShotable replaceFragment(ScreenShotable screenShotable, int topPosition) {
-
-        getSupportActionBar().setTitle(mCategory);
-        View view = findViewById(R.id.content_frame);
-        int finalRadius = Math.max(view.getWidth(), view.getHeight());
-        SupportAnimator animator = ViewAnimationUtils.createCircularReveal(view, 0, topPosition, 0, finalRadius);
-        animator.setInterpolator(new AccelerateInterpolator());
-        animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
-        findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
-        animator.start();
-        mContentFragment = "New".equals(mCategory) ? NewContentFragment.newInstance(mCategory) : CategoryContentFragment.newInstance(mCategory);
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContentFragment).commit();
-        return mContentFragment;
-    }
-
-    @Override
-    public ScreenShotable onSwitch(Resourceble slideMenuItem, ScreenShotable screenShotable, int position) {
-        if (mCategory.equals(slideMenuItem.getName())) {
-            return screenShotable;
-        }
-        switch (slideMenuItem.getName()) {
-            case ContentFragment.CLOSE:
-                return screenShotable;
-            default:
-                mCategory = slideMenuItem.getName();
-                return replaceFragment(screenShotable, position);
-        }
-    }
-
-    @Override
-    public void disableHomeButton() {
-        getSupportActionBar().setHomeButtonEnabled(false);
-
-    }
-
-    @Override
-    public void enableHomeButton() {
-        getSupportActionBar().setHomeButtonEnabled(true);
-        drawerLayout.closeDrawers();
-
-    }
-
-    @Override
-    public void addViewToContainer(View view) {
-        linearLayout.addView(view);
     }
 
     @Override
@@ -275,5 +244,34 @@ public class MainActivity extends BaseActivity implements ViewAnimator.ViewAnima
                 }
             }
         });
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        if(!mCategory.equals(mDrawerList[position])){ //如果是相同类别则不置换fragment
+            mCategory = mDrawerList[position];
+            if(position < 9){
+                mContentFragment = CategoryContentFragment.newInstance(mCategory);
+            }
+            else
+                mContentFragment = CollectionsFragment.newInstance(mCategory);
+            getSupportActionBar().setTitle(mCategory);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, mContentFragment)
+                    .commit();
+        }
+        mDrawerLayout.closeDrawers();
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 }

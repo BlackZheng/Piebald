@@ -3,13 +3,22 @@ package com.blackzheng.me.piebald.data;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.blackzheng.me.piebald.App;
+import com.blackzheng.me.piebald.util.DrawableUtil;
+
+import net.qiujuer.genius.blur.StackBlur;
+
+import java.util.Random;
 
 /**
  * Created by BlackZheng on 2016/4/7.
@@ -87,6 +96,37 @@ public class ImageCacheManager {
                         view.setImageBitmap(response.getBitmap());
                 } else if (defaultImageDrawable != null) {
                     view.setImageDrawable(defaultImageDrawable);
+                }
+            }
+        };
+    }
+
+    public static ImageLoader.ImageListener getProfileListenerWithBlur(final ImageView view,
+                                                               final int defaultColor, final int errorColor, final View blur) {
+        return new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (errorColor != 0) {
+                    view.setImageResource(errorColor);
+                    blur.setBackgroundResource(errorColor);
+                }
+            }
+
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (response.getBitmap() != null) {
+                    Drawable[] drawables=new Drawable[2];
+                    drawables[0] = new BitmapDrawable(StackBlur.blurNatively(response.getBitmap(), 20, false));
+                    drawables[1] = new ColorDrawable(0x55000000);
+                    view.setImageBitmap(response.getBitmap());
+                    blur.setBackground(new LayerDrawable(drawables));
+
+                } else if (defaultColor != 0) {
+                    view.setImageResource(defaultColor);
+//                    blur.setBackground(defaultImageDrawable);
+                    blur.setBackgroundResource(defaultColor);
+//                    Log.d("color", DrawableUtil.getDefaultColors()[new Random().nextInt(5)] + "");
+//                    blur.setBackgroundColor(DrawableUtil.getDefaultColors()[new Random().nextInt(5)]);
                 }
             }
         };

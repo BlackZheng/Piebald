@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -26,6 +25,7 @@ import com.liulishuo.filedownloader.notification.BaseNotificationItem;
 import com.liulishuo.filedownloader.notification.FileDownloadNotificationHelper;
 import com.liulishuo.filedownloader.notification.FileDownloadNotificationListener;
 import com.liulishuo.filedownloader.util.FileDownloadHelper;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.util.List;
@@ -53,8 +53,14 @@ public class Downloader {
             default:
                 ToastUtils.showLong(R.string.wrong_network);
         }
+        MobclickAgent.onEvent(context,"Download");
     }
 
+    /**
+     * 该下载方式部分ROM不支持，已废弃
+     * @param downloadUrl
+     * @param fileName
+     */
     @SuppressLint("NewApi")
     private static void downloadFile(String downloadUrl, String fileName){
         Boolean result=isDownloadManagerAvailable(App.getContext());
@@ -76,8 +82,13 @@ public class Downloader {
         else{
             ToastUtils.showShort(R.string.download_failure);
         }
-
     }
+
+    /**
+     * 采用第三方狂街FileDownloader进行下载
+     * @param downloadUrl
+     * @param fileName
+     */
     private static void downloadFile2(String downloadUrl, String fileName){
         String savePath = getPath() + "/" + fileName;
         File file = new File(savePath);
@@ -118,6 +129,13 @@ public class Downloader {
             return false;
         }
     }
+
+    /**
+     * 当用户处于非WIFI环境下，让用户进行确认是否进行下载
+     * @param context
+     * @param downloadUrl
+     * @param fileName
+     */
     private static void confirmDownloading(Context context, final String downloadUrl, final String fileName){
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle("Confirm")
@@ -137,6 +155,8 @@ public class Downloader {
         builder.create()
                 .show();
     }
+
+    //下载路径的获取与设置
     public static void setPath(String path){
         mPath = path;
     }
@@ -146,6 +166,7 @@ public class Downloader {
         }
         return defaultPath;
     }
+
     private static class NotificationListener extends FileDownloadNotificationListener {
         private String savePath;
         private String fileName;
@@ -268,7 +289,6 @@ public class Downloader {
                             .setTicker(title + " " + desc);
                     break;
             }
-            Log.d("test", (status == FileDownloadStatus.completed) + "");
             builder.setDefaults(Notification.DEFAULT_LIGHTS)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentTitle(getTitle())

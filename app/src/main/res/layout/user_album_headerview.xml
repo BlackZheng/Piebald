@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="144dp"
+    android:paddingBottom="16dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/default_profile"/>
+    <TextView
+        android:id="@+id/likes"
+        android:layout_margin="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profile"
+        android:layout_centerHorizontal="true"
+        android:textSize="12sp"
+        android:textColor="@android:color/white" />
+    <ImageView
+        android:id="@+id/loc_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:visibility="gone"
+        android:src="@mipmap/location"
+        android:layout_alignTop="@id/location"
+        android:layout_toLeftOf="@id/location"/>
+    <TextView
+        android:id="@+id/location"
+        android:layout_margin="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"
+        android:layout_below="@id/likes" />
+    <TextView
+        fontPath="fonts/RobotoCondensed-BoldItalic.ttf"
+        android:id="@+id/bio"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/location"
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        tools:ignore="MissingPrefix"/>
+
+</RelativeLayout>

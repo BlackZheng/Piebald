@@ -2,11 +2,9 @@ package com.blackzheng.me.piebald.data;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.LruCache;
 
 import com.android.volley.toolbox.ImageLoader;
-import com.blackzheng.me.piebald.App;
 
 /**
  * Created by BlackZheng on 2016/4/7.

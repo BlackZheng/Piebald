@@ -2,7 +2,7 @@ package com.blackzheng.me.piebald.util;
 
 import android.graphics.Bitmap;
 
-/**
+/**用于分享图片到微信的过程中bitmap对象的暂存
  * Created by BlackZheng on 2016/4/27.
  */
 //It holder the bitmap loaded in PhotoZooming Activity for sharing to Wechat
