@@ -2,7 +2,6 @@ package com.blackzheng.me.piebald.util;
 
 import android.graphics.Bitmap;
 
-
 import java.io.ByteArrayOutputStream;
 
 /**

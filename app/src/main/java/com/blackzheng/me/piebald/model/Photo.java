@@ -69,6 +69,7 @@ public class Photo extends  BaseModel {
 
     public class User{
         public String id;
+        public String username;
         public String name;
         public Profile_Image profile_image;
 

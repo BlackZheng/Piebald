@@ -1,17 +1,21 @@
 package com.blackzheng.me.piebald.ui;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.toolbox.ImageLoader;
@@ -22,18 +26,26 @@ import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.Downloader;
-import com.blackzheng.me.piebald.util.ShareImgToWX;
+import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.util.StringUtil;
+import com.blackzheng.me.piebald.util.ToastUtils;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnNeverAskAgain;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
 
+/**
+ * 用于显示图片详情页面
+ */
+@RuntimePermissions
 public class PhotoDetailActivity extends BaseActivity {
-    private static final int[] COLORS = {R.color.holo_blue_light, R.color.holo_green_light, R.color.holo_orange_light, R.color.holo_purple_light, R.color.holo_red_light};
-    private Resources mResource;
     private Drawable mDefaultImageDrawable;
     public static final String PHOTO_ID = "photo_id";
     public static final String DOWNLOAD_URL = "download_url";
@@ -62,19 +74,20 @@ public class PhotoDetailActivity extends BaseActivity {
         setContentView(R.layout.photo_detail_layout);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initActionBar(mToolbar);
-        mDefaultImageDrawable = new ColorDrawable(getResources().getColor(COLORS[new Random().nextInt(5)]));
+        mDefaultImageDrawable = new ColorDrawable(getResources().getColor(DrawableUtil.getDefaultColors()[new Random().nextInt(5)]));
         getIntentData();
         initView();
-        detailed_photo = Photo.getFromCache(id);
-        if (detailed_photo != null && detailed_photo.exif != null) {
-            setView(detailed_photo);
-        } else {
+        detailed_photo =  Photo.getFromCache(id);
+        setView(detailed_photo);
+        if  (detailed_photo.exif != null){
+            setExif(detailed_photo);
+        }
+        else {
 
             executeRequest(new GsonRequest(String.format(UnsplashAPI.GET_SPECIFIC_PHOTO, id), new TypeToken<Photo>() {
             }.getType(),
                     responseListener(), errorListener()));
         }
-
 
     }
 
@@ -94,26 +107,81 @@ public class PhotoDetailActivity extends BaseActivity {
             download.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Downloader.download(PhotoDetailActivity.this, downloadUrl, id + ".jpg");
+                    PhotoDetailActivityPermissionsDispatcher.downloadWithCheck(PhotoDetailActivity.this);
                 }
             });
     }
 
+    /**
+     * 请求下载权限并进行下载
+     */
+    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void download(){
+        Downloader.download(PhotoDetailActivity.this, downloadUrl, id + ".jpg");
+    }
     private void getIntentData() {
         Intent intent = getIntent();
         id = intent.getStringExtra(PHOTO_ID);
         downloadUrl = intent.getStringExtra(DOWNLOAD_URL);
     }
+    @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void showRationaleForStore(final PermissionRequest request) {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.storage_permision_showRationale)
+                .setPositiveButton(R.string.button_allow, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        request.proceed();
+                    }}).
+                setNegativeButton(R.string.button_deny, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        request.cancel();
+                    }
+        }).show();
+    }
 
+    @OnNeverAskAgain(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void showNeverAskForCamera() {
+        ToastUtils.showShort(R.string.no_permisson_toast);
+    }
     private void setView(final Photo detailed_photo) {
         if (detailed_photo.color != null)
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(detailed_photo.color));
         photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.urls.small), ImageCacheManager
                 .getImageListener(photo, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
-        profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), ImageCacheManager
-                .getProfileListener(profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         if (detailed_photo.user.name != null)
             photo_by.setText("By " + Decoder.decodeStr(detailed_photo.user.name));
+
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PhotoDetailActivity.this, PhotoZoomingActivity.class);
+                intent.putExtra(PhotoZoomingActivity.IMAGE_URL, detailed_photo.urls.regular);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    /**
+     * 将图片的EXIF显示到View上
+     * @param detailed_photo
+     */
+    private void setExif(final Photo detailed_photo){
+
+        profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), ImageCacheManager
+                .getProfileListener(profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(PhotoDetailActivity.this, UserAlbumActivity.class);
+                intent.putExtra(UserAlbumActivity.USERNAME, detailed_photo.user.username);
+                intent.putExtra(UserAlbumActivity.NAME, detailed_photo.user.name);
+                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, detailed_photo.user.profile_image.large);
+                startActivity(intent);
+            }
+        });
         if (detailed_photo.location != null)
             location.setText("In " + Decoder.decodeStr(detailed_photo.location.city) + ", " + Decoder.decodeStr(detailed_photo.location.country));
         if (detailed_photo.exif.make != null)
@@ -127,24 +195,14 @@ public class PhotoDetailActivity extends BaseActivity {
         if (detailed_photo.exif.focal_length != null)
             focal_length.setText(StringUtil.checkFocalLength(detailed_photo.exif.focal_length) + "mm");
         iso.setText(detailed_photo.exif.iso + "");
-        photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(PhotoDetailActivity.this, PhotoZoomingActivity.class);
-                intent.putExtra(PhotoZoomingActivity.IMAGE_URL, detailed_photo.urls.regular);
-                startActivity(intent);
-            }
-        });
-
     }
 
     protected Response.Listener<Photo> responseListener() {
-//        final boolean isRefreshFromTop = ("1".equals(mPage));
         return new Response.Listener<Photo>() {
             @Override
             public void onResponse(final Photo response) {
 
-                setView(response);
+                setExif(response);
                 Photo.addToCache(response);
 
             }
@@ -183,6 +241,13 @@ public class PhotoDetailActivity extends BaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        PhotoDetailActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
 }

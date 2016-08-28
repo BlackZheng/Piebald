@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -20,7 +19,7 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
-import com.blackzheng.me.piebald.util.database.DrawableUtil;
+import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -34,26 +33,27 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
     private Resources mResource;
     private Drawable mDefaultImageDrawable;
     private OnItemClickLitener mOnItemClickLitener;
-    private int width;
+    private int mWidth;
+    private int mResID;
 
-    public ContentAdapter(Context context, Cursor c) {
+    public ContentAdapter(Context context, Cursor c, int resID) {
         super(context, c);
-        width = ((WindowManager) context
+        mWidth = ((WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay().getWidth();
         mResource = context.getResources();
+        mResID = resID;
     }
 
     @Override
     public ContentAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(mResID, parent, false);
         return new ViewHolder(view);
     }
 
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, Cursor cursor) {
-
         if (holder.photoRequest != null) {
             holder.photoRequest.cancelRequest();
         }
@@ -66,17 +66,21 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
         }else{
             mDefaultImageDrawable = new ColorDrawable(mResource.getColor(COLORS[cursor.getPosition() % COLORS.length]));
         }
+
         holder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int pos = holder.getLayoutPosition();
-                mOnItemClickLitener.onItemClick(holder.photo, photo, pos);
+                if(mOnItemClickLitener != null){
+                    int pos = holder.getLayoutPosition();
+                    mOnItemClickLitener.onItemClick(holder.photo, photo, pos);
+                }
+
             }
         });
 
         holder.photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), ImageCacheManager
                 .getImageListener(holder.photo,
-                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*photo.height/photo.width),
+                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, mWidth, mWidth*photo.height/photo.width),
                         mDefaultImageDrawable), 0, 0);
         holder.profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), ImageCacheManager
                 .getProfileListener(holder.profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
@@ -84,12 +88,9 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
         holder.like_num.setText(String.valueOf(photo.likes));
 
 
-
-
     }
 
-    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener)
-    {
+    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener) {
         this.mOnItemClickLitener = mOnItemClickLitener;
     }
 

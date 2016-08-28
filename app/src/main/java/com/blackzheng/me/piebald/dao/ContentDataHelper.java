@@ -85,7 +85,7 @@ public class ContentDataHelper extends BaseDataHelper {
             return row;
         }
     }
-
+    @Override
     public CursorLoader getCursorLoader() {
         return new CursorLoader(getContext(), getContentUri(), null, ContentDBInfo.CATEGORY + "=?",
                 new String[] {

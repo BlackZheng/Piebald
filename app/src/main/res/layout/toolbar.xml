@@ -8,4 +8,4 @@
     android:background="?attr/colorPrimary"
     android:fitsSystemWindows="true"
     android:theme="@style/ToolbarTheme"
-    app:popupTheme="@style/AppTheme.PopupOverlay" />
+    app:popupTheme="@style/AppTheme.PopupOverlay"/>

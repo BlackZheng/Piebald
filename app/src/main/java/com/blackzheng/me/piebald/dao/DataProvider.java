@@ -17,6 +17,7 @@ import com.blackzheng.me.piebald.App;
  * Created by BlackZheng on 2016/4/7.
  */
 public class DataProvider extends ContentProvider {
+
     static final String TAG = DataProvider.class.getSimpleName();
 
     static final Object DBLock = new Object();
@@ -28,20 +29,47 @@ public class DataProvider extends ContentProvider {
     // messages
     public static final String PATH_CONTENTS = "/contents";
 
+    public static final String PATH_USERALBUM = "/useralbum";
+
+    public static final String PATH_COLLECTIONS = "/collections";
+
+    public static final String PATH_PHOTO_COLLECTION = "/photo_collection";
+
     public static final Uri CONTENTS_URI = Uri.parse(SCHEME + AUTHORITY + PATH_CONTENTS);
 
+    public static final Uri USERALBUM_URI = Uri.parse(SCHEME + AUTHORITY + PATH_USERALBUM);
+
+    public static final Uri COLLECTIONS_URI = Uri.parse(SCHEME + AUTHORITY + PATH_COLLECTIONS);
+
+    public static final Uri PHOTO_COLLECTION_URI = Uri.parse(SCHEME + AUTHORITY + PATH_PHOTO_COLLECTION);
+
     private static final int CONTENTS = 0;
+
+    private static final int USERALBUM = 1;
+
+    private static final int COLLECTIONS = 2;
+
+    private static final int PHOTO_COLLECTION = 3;
 
     /*
      * MIME type definitions
      */
     public static final String CONTENTS_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.contents";
 
+    public static final String USERALBUM_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.useralbum";
+
+    public static final String COLLECTIONS_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.collections";
+
+    public static final String PHOTO_COLLECTION_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.photo_collection";
+
     private static final UriMatcher sUriMatcher;
 
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, "contents", CONTENTS);
+        sUriMatcher.addURI(AUTHORITY, "useralbum", USERALBUM);
+        sUriMatcher.addURI(AUTHORITY, "collections", COLLECTIONS);
+        sUriMatcher.addURI(AUTHORITY, "photo_collection", PHOTO_COLLECTION);
     }
 
     private static DBHelper mDBHelper;
@@ -86,6 +114,12 @@ public class DataProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case CONTENTS:
                 return CONTENTS_TYPE;
+            case USERALBUM:
+                return USERALBUM_TYPE;
+            case COLLECTIONS:
+                return COLLECTIONS_TYPE;
+            case PHOTO_COLLECTION:
+                return PHOTO_COLLECTION_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -158,6 +192,15 @@ public class DataProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case CONTENTS:
                 table = ContentDataHelper.ContentDBInfo.TABLE_NAME;
+                break;
+            case USERALBUM:
+                table = UserAlbumDataHelper.ContentDBInfo.TABLE_NAME;
+                break;
+            case COLLECTIONS:
+                table = CollectionDataHelper.ContentDBInfo.TABLE_NAME;
+                break;
+            case PHOTO_COLLECTION:
+                table = PhotoCollectionDataHelper.ContentDBInfo.TABLE_NAME;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

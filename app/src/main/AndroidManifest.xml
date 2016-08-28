@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".App"
@@ -53,10 +54,24 @@
         <activity
             android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity"
             android:theme="@style/Theme.AppCompat.Light" />
-        <activity android:name=".ui.ShareSelectActivity"
-            android:label=""
+        <activity
+            android:name=".ui.ShareSelectActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:theme="@style/DialogStyleBottom"/>
+            android:label=""
+            android:theme="@style/DialogStyleBottom" />
+        <activity
+            android:name=".ui.UserAlbumActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--友盟的KEY-->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="wandoujia" />
+
+        <activity android:name=".ui.CollectionActivity"></activity>
     </application>
 
 </manifest>
