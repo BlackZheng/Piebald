@@ -43,8 +43,6 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.+'
     compile 'com.malinskiy:superrecyclerview:1.1.4'
     compile 'de.hdodenhof:circleimageview:2.0.0'
-    compile 'com.github.ozodrukh:CircularReveal:1.3.1@aar'
-    compile 'com.yalantis:sidemenu:1.0'
     compile 'com.commit451:PhotoView:1.2.5'
     compile 'com.github.lzyzsd:circleprogress:1.1.0@aar'
     compile 'jp.wasabeef:recyclerview-animators:2.2.1'
@@ -52,7 +50,7 @@ dependencies {
     compile 'uk.co.chrisjenx:calligraphy:2.2.0'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile project(':library')
-    compile files('libs/libammsdk.jar')
+
     compile 'com.liulishuo.filedownloader:library:0.3.1'
     compile 'com.github.hotchemi:permissionsdispatcher:2.1.3'
     apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.3'
