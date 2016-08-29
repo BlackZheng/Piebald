@@ -3,8 +3,6 @@ package com.blackzheng.me.piebald.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -72,7 +70,7 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_album2);
+        setContentView(R.layout.activity_user_album);
         initialData();
         initViews();
         setupTitleAndProfile();

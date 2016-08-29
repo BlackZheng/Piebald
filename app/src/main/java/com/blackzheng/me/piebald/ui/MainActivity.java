@@ -77,7 +77,7 @@ public class MainActivity extends BaseActivity implements DrawerAdapter.OnItemCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main);
         initSplashView();//初始化启动页面
         //请求权限
         MainActivityPermissionsDispatcher.requestPermissionWithCheck(this);
