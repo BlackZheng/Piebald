@@ -5,7 +5,6 @@ Piebald is an application for appreciation and downloading of stunning photograp
 This is my first project for development practice. I'm sure that there are many defects in this project. I will apreciate your advices or criticisms. And I 'm glad if somebody help me to perfect Piebald.
 
 ## Preview
-<img src="/screenshots/ad.jpg" alt="screenshot" title="screenshot" width="180" height="120" />
 <img src="/screenshots/screenshot1.jpg" alt="screenshot" title="screenshot" width="450" height="800" /><img src="/screenshots/screenshot2.jpg" alt="screenshot" title="screenshot" width="450" height="800" />
 <img src="/screenshots/screenshot3.jpg" alt="screenshot" title="screenshot" width="450" height="800" /><img src="/screenshots/screenshot4.jpg" alt="screenshot" title="screenshot" width="450" height="800" />
 <img src="/screenshots/screenshot5.jpg" alt="screenshot" title="screenshot" width="450" height="800" /><img src="/screenshots/screenshot6.jpg" alt="screenshot" title="screenshot" width="450" height="800" />
