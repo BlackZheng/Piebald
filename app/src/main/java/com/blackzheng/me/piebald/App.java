@@ -6,11 +6,14 @@ package com.blackzheng.me.piebald;
 
 import android.Manifest;
 import android.app.Application;
+import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.ToastUtils;
@@ -28,6 +31,10 @@ import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.message.IUmengRegisterCallback;
+import com.umeng.message.PushAgent;
+import com.umeng.message.UmengMessageHandler;
+import com.umeng.message.entity.UMessage;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -35,6 +42,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+import cn.bmob.v3.Bmob;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 /**
@@ -50,11 +58,47 @@ public class App extends Application implements IWXAPIEventHandler {
         super.onCreate();
         sContext = getApplicationContext();
         initUMeng();
+        initPush();
         initImageLoader(getApplicationContext());
         initWXAPI(this);
         initDownloader();
         initFontConfig();
+        Bmob.initialize(this, Constants.BOMB_KEY);
         Log.d("geiDeviceInfo", getDeviceInfo(this));
+    }
+
+    private void initPush() {
+        PushAgent mPushAgent = PushAgent.getInstance(this);
+//        mPushAgent.setDebugMode(true);
+        UmengMessageHandler messageHandler = new UmengMessageHandler(){
+            public Notification getNotification(Context context,
+                                                UMessage msg) {
+                switch (msg.builder_id) {
+                    case 1:
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+                        RemoteViews myNotificationView = new RemoteViews(context.getPackageName(), R.layout.notification_view);
+                        myNotificationView.setTextViewText(R.id.notification_title, msg.title);
+                        myNotificationView.setTextViewText(R.id.notification_text, msg.text);
+                        myNotificationView.setImageViewBitmap(R.id.notification_large_icon, getLargeIcon(context, msg));
+                        myNotificationView.setImageViewResource(R.id.notification_small_icon, getSmallIconId(context, msg));
+                        builder.setContent(myNotificationView)
+                                .setSmallIcon(getSmallIconId(context, msg))
+                                .setTicker(msg.ticker)
+                                .setAutoCancel(true);
+
+                        return builder.build();
+
+                    default:
+                        //默认为0，若填写的builder_id并不存在，也使用默认。
+                        return super.getNotification(context, msg);
+                }
+            }
+        };
+
+        mPushAgent.setMessageHandler(messageHandler);
+        mPushAgent.enable();
+
+
     }
 
     //初始化友盟框架
@@ -63,7 +107,7 @@ public class App extends Application implements IWXAPIEventHandler {
         String channel = AnalyticsConfig.getChannel(getContext());
         MobclickAgent. startWithConfigure(new MobclickAgent.UMAnalyticsConfig(getContext(), appKey, channel));
         MobclickAgent.enableEncrypt(true);
-        MobclickAgent.setDebugMode(true);
+//        MobclickAgent.setDebugMode(true);
         MobclickAgent.openActivityDurationTrack(false);
     }
 
@@ -161,6 +205,7 @@ public class App extends Application implements IWXAPIEventHandler {
         }
         return result;
     }
+
     public static String getDeviceInfo(Context context) {
         try {
             org.json.JSONObject json = new org.json.JSONObject();

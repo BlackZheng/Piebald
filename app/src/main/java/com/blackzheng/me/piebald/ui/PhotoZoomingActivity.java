@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.util.Decoder;
+import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ShareBitmapHolder;
 import com.blackzheng.me.piebald.view.HideableToolbar;
 import com.github.lzyzsd.circleprogress.CircleProgress;
@@ -25,6 +26,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  */
 public class PhotoZoomingActivity extends BaseActivity {
 
+    private static final String TAG = LogHelper.makeLogTag(PhotoZoomingActivity.class);
 
     public static final String IMAGE_URL = "image_url";
 
@@ -70,6 +72,7 @@ public class PhotoZoomingActivity extends BaseActivity {
         String imageUrl = Decoder.decodeURL(getIntent().getStringExtra(IMAGE_URL));
         DisplayImageOptions options = new DisplayImageOptions.Builder().cacheOnDisk(true)
                 .considerExifParams(false).build();
+
         ImageLoader.getInstance().displayImage(imageUrl, photoView, options, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
@@ -82,7 +85,6 @@ public class PhotoZoomingActivity extends BaseActivity {
         }, new ImageLoadingProgressListener() {
             @Override
             public void onProgressUpdate(String imageUri, View view, int current, int total) {
-
                 progress.setProgress(100 * current / total);
             }
         });
@@ -96,6 +98,7 @@ public class PhotoZoomingActivity extends BaseActivity {
             mAttacher.cleanup();
         }
         ShareBitmapHolder.recycleBitmap();
+        ImageLoader.getInstance().cancelDisplayTask(photoView);
     }
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {

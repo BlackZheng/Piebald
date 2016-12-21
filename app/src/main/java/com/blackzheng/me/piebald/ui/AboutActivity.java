@@ -7,8 +7,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.blackzheng.me.piebald.R;
+import com.blackzheng.me.piebald.util.LogHelper;
 
 public class AboutActivity extends BaseActivity {
+    private static final String TAG = LogHelper.makeLogTag(AboutActivity.class);
     private Toolbar mToolbar;
 
     @Override

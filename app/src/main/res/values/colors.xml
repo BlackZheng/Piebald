@@ -10,4 +10,5 @@
     <color name="holo_orange_light">#33ffbb33</color>
     <color name="holo_purple_light">#33aa66cc</color>
     <color name="press_state">#44AFAFAF</color>
+    <color name="nav_item">#ffffff</color>
 </resources>

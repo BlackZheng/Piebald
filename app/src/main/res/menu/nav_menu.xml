@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android.support.design="http://schemas.android.com/tools">
+    <group android:id="@+id/g1">
+        <item
+            android:id="@+id/latest"
+            android:checkable="true"
+            android:title="@string/latest"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"
+            />
+        <item
+            android:id="@+id/buildings"
+            android:checkable="true"
+            android:title="@string/buildings"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/foodndrink"
+            android:checkable="true"
+            android:title="@string/foodndrink"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/nature"
+            android:checkable="true"
+            android:title="@string/nature"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/people"
+            android:checkable="true"
+            android:title="@string/people"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/technology"
+            android:checkable="true"
+            android:title="@string/technology"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/objects"
+            android:checkable="true"
+            android:title="@string/objects"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+    </group>
+    <group android:id="@+id/g2">
+        <item
+            android:id="@+id/featured"
+            android:checkable="true"
+            android:title="@string/featured"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+        <item
+            android:id="@+id/curated"
+            android:checkable="true"
+            android:title="@string/curated"
+            android.support.design:itemTextColor="@color/nav_item"
+            app:itemIconTint="@color/nav_item"/>
+    </group>
+
+</menu>

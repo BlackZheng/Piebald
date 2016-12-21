@@ -1,45 +1,28 @@
 package com.blackzheng.me.piebald.ui.fragment;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.BaseAdapter;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.dao.BaseDataHelper;
-import com.blackzheng.me.piebald.dao.ContentDataHelper;
-import com.blackzheng.me.piebald.data.GsonRequest;
-import com.blackzheng.me.piebald.model.BaseModel;
-import com.blackzheng.me.piebald.model.Photo;
-import com.blackzheng.me.piebald.ui.PhotoDetailActivity;
 import com.blackzheng.me.piebald.ui.adapter.BaseAbstractRecycleCursorAdapter;
-import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
-import com.blackzheng.me.piebald.util.TaskUtils;
-import com.blackzheng.me.piebald.util.ToastUtils;
+import com.blackzheng.me.piebald.util.LogHelper;
 import com.malinskiy.superrecyclerview.OnMoreListener;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
 import com.umeng.analytics.MobclickAgent;
 
-import java.util.List;
-
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
-import yalantis.com.sidemenu.interfaces.ScreenShotable;
 
 /**
  * Created by BlackZheng on 2016/4/6.
@@ -47,6 +30,7 @@ import yalantis.com.sidemenu.interfaces.ScreenShotable;
 public abstract class ContentFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener,
         LoaderManager.LoaderCallbacks<Cursor>, OnMoreListener {
 
+    private static final String TAG = LogHelper.makeLogTag(ContentFragment.class);
     public static final String EXTRA_CATEGORY = "extra_category";
     public static final String NOT_OLD_ID = "not_old_id";
 
@@ -115,22 +99,6 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         MobclickAgent.onPageStart(mCategory);
     }
 
-    /**
-     * 由子类实现
-     * @return
-     */
-    protected abstract Response.Listener responseListener() ;
-
-    protected Response.ErrorListener errorListener() {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                ToastUtils.showShort(R.string.loading_failed);
-                setRefreshing(false);
-            }
-        };
-    }
-
     /*
     *   Method for loading
     */
@@ -138,7 +106,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         if (!list.getSwipeToRefresh().isRefreshing() && next == 1 ) {
             setRefreshing(true);
         }
-        executeRequest(getRequest(mCategory, next));
+        getData(mCategory, String.valueOf(next));
     }
 
     private void loadFirst() {
@@ -154,7 +122,6 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         loadFirst();
     }
 
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return mDataHelper.getCursorLoader();
@@ -163,6 +130,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mCurrentPage = data.getCount() / 10 + 1;// Make the currentPage increase everytime loading is finished
+        Log.d("ContentFragment", mCurrentPage + "");
         if (data.getCount() != 0 && data.moveToFirst()) {
 
             mOldId = data.getString(1);
@@ -228,11 +196,5 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
      */
     protected abstract RecyclerView.LayoutManager reviewOnScreenChanged(Configuration newConfig);
 
-    /**
-     * 根据子类的具体类型返回具体请求类型
-     * @param category
-     * @param page
-     * @return
-     */
-    protected abstract GsonRequest getRequest(String category, int page);
+    protected  abstract void getData(String category, String page);
 }

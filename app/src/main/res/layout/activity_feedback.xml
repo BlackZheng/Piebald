@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.blackzheng.me.piebald.ui.FeedbackActivity">
+    <include layout="@layout/toolbar"/>
+    <EditText
+        android:layout_below="@id/toolbar"
+        android:id="@+id/subject"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="6dp"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:hint="@string/feedback_subject"
+        />
+    <EditText
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_margin="6dp"
+        android:layout_below="@id/subject"
+        android:textColor="@android:color/black"
+        android:maxLength="300"
+        android:gravity="top"
+        android:hint="@string/feedback_content"
+        />
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content"
+        android:layout_centerHorizontal="true"
+        android:onClick="submit"
+        android:background="@color/colorPrimary"
+        android:text="@string/submit"/>
+</RelativeLayout>
