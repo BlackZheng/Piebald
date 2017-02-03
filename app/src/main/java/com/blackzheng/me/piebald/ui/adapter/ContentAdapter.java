@@ -7,18 +7,19 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DrawableUtil;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -28,7 +29,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdapter.ViewHolder> {
 
-    private static final String TAG = LogHelper.makeLogTag(ContentAdapter.class);
     private static final int[] COLORS = {R.color.holo_blue_light, R.color.holo_green_light, R.color.holo_orange_light, R.color.holo_purple_light, R.color.holo_red_light};
     private Resources mResource;
     private Drawable mDefaultImageDrawable;
@@ -54,9 +54,12 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, Cursor cursor) {
-        LogHelper.d(TAG, "onBindViewHolder()");
-        ImageCacheManager.cancelDisplayingTask(holder.photo);
-        ImageCacheManager.cancelDisplayingTask(holder.profile);
+        if (holder.photoRequest != null) {
+            holder.photoRequest.cancelRequest();
+        }
+        if (holder.profileRequest != null) {
+            holder.profileRequest.cancelRequest();
+        }
         final Photo photo = Photo.fromCursor(cursor);
         if(photo.color != null){
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(photo.color));
@@ -64,9 +67,6 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
             mDefaultImageDrawable = new ColorDrawable(mResource.getColor(COLORS[cursor.getPosition() % COLORS.length]));
         }
 
-        ViewGroup.LayoutParams lp = holder.photo.getLayoutParams();
-        lp.height = photo.height;
-        holder.photo.setLayoutParams(lp);
         holder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,11 +77,16 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
 
             }
         });
-        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), holder.photo, DrawableUtil.getDrawable(photo.color, mWidth, mWidth*photo.height/photo.width));
-//        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), holder.photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, mWidth, mWidth*photo.height/photo.width));
-        ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), holder.profile, mDefaultImageDrawable);
-        holder.username.setText(photo.user.name);
+
+        holder.photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), ImageCacheManager
+                .getImageListener(holder.photo,
+                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, mWidth, mWidth*photo.height/photo.width),
+                        mDefaultImageDrawable), 0, 0);
+        holder.profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), ImageCacheManager
+                .getProfileListener(holder.profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
+        holder.username.setText(Decoder.decodeStr(photo.user.name));
         holder.like_num.setText(String.valueOf(photo.likes));
+
 
     }
 
@@ -94,7 +99,8 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
         public CircleImageView profile;
         public TextView username;
         public TextView like_num;
-
+        public ImageLoader.ImageContainer photoRequest;
+        public ImageLoader.ImageContainer profileRequest;
 
         public ViewHolder(View itemView) {
             super(itemView);

@@ -3,6 +3,7 @@ package com.blackzheng.me.piebald.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -14,10 +15,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.toolbox.ImageLoader;
 import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
 import com.blackzheng.me.piebald.dao.UserAlbumDataHelper;
+import com.blackzheng.me.piebald.data.GsonRequest;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.model.User;
@@ -25,8 +29,9 @@ import com.blackzheng.me.piebald.ui.adapter.UserAlbumAdapter;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DensityUtils;
 import com.blackzheng.me.piebald.util.DrawableUtil;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ResourceUtil;
+import com.blackzheng.me.piebald.util.TaskUtils;
+import com.google.gson.reflect.TypeToken;
 import com.malinskiy.superrecyclerview.OnMoreListener;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
 
@@ -34,14 +39,9 @@ import java.util.List;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 public class UserAlbumActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnMoreListener, UserAlbumAdapter.OnItemClickLitener {
 
-    private static final String TAG = LogHelper.makeLogTag(UserAlbumActivity.class);
     public static final String NAME = "name";
     public static final String USERNAME = "username";
     public static final String PROFILE_IMAGE_URL = "profile_image_url";
@@ -49,6 +49,7 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout title;
+    private View header;
     private CircleImageView profile;
     private TextView likes, location, bio;
     private SuperRecyclerView list;
@@ -64,6 +65,7 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
     private int mPage;
     private String mOldId;
     private int mLastPage = 1;
+    private ImageLoader.ImageContainer mProfileRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,27 +79,20 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
             setupLikesAndLocationAndBio(mUser);
         }
         else {
-            getUserJson(mUsername);
+            executeRequest(new GsonRequest(String.format(UnsplashAPI.GET_USERPROFILE, mUsername), new TypeToken<User>() {
+            }.getType(),
+                    new Response.Listener<User>() {
+                        @Override
+                        public void onResponse(final User response) {
+                            setLastPage(response.total_photos);
+                            User.addToCache(response);
+                            setupLikesAndLocationAndBio(response);
+                        }
+                    }, errorListener()));
         }
         startLoadingPhotos();
     }
 
-    private void getUserJson(String username){
-        LogHelper.d(TAG, "getUserJson");
-        Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getUserByUsername(username, UnsplashAPI.CLIENT_ID)
-            . subscribeOn(Schedulers.io())
-            . observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Action1<User>() {
-                @Override
-                public void call(User user) {
-                    LogHelper.d(TAG,"getUserJson: onNext");
-                    setLastPage(user.total_photos);
-                    User.addToCache(user);
-                    setupLikesAndLocationAndBio(user);
-                }
-            }, ERRORACTION);
-        addSubscription(subscription);
-    }
     private void setupLikesAndLocationAndBio(User user) {
         likes.setText(ResourceUtil.getStringFromRes(this, R.string.be_liked) + " " + user.total_likes + " " + ResourceUtil.getStringFromRes(this, R.string.times));
         if(user.location != null){
@@ -111,7 +106,10 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
     private void setupTitleAndProfile() {
         title.setTitle(Decoder.decodeStr(mName));
         mDefaultColor = DrawableUtil.getDefaultColors()[new Random().nextInt(5)];
-        ImageCacheManager.loadImageWithBlur(Decoder.decodeURL(mProfileImageUrl), profile, mDefaultColor, title);
+
+        if(mProfileRequest == null)
+            mProfileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(mProfileImageUrl), ImageCacheManager
+                .getProfileListenerWithBlur(profile, mDefaultColor, mDefaultColor, title), 0, 0);
 
     }
 
@@ -136,6 +134,7 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         title.setCollapsedTitleTypeface(tf);
         title.setExpandedTitleTypeface(tf);
 
+        header = findViewById(R.id.header);
         profile = (CircleImageView) findViewById(R.id.profile);
         likes = (TextView) findViewById(R.id.likes);
         location = (TextView) findViewById(R.id.location);
@@ -172,29 +171,46 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         loadData(1);
     }
 
-    private void loadData(int next) {
-        Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getPhotosByUser(mUsername, next, UnsplashAPI.CLIENT_ID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new Action1<List<Photo>>() {
+    private Response.Listener<List<Photo>> responseListener() {
+
+        return new Response.Listener<List<Photo>>() {
+            @Override
+            public void onResponse(final List<Photo> response) {
+                final String newId = response.get(0).id;
+
+                TaskUtils.executeAsyncTask(new AsyncTask<Object, Object, Object>() {
+
                     @Override
-                    public void call(List<Photo> photos) {
-                        LogHelper.d(TAG, "loadData: onNext");
-                        String newId = photos.get(0).id;
+                    protected Object doInBackground(Object... params) {
                         if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
                             if(mPage < 2)
                                 mDataHelper.deleteAll();
-                            mDataHelper.bulkInsert(photos);
+                            mDataHelper.bulkInsert(response);
                         }
+                        return null;
                     }
-                }, ERRORACTION);
-        addSubscription(subscription);
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
+                    }
+                });
+
+
+            }
+        };
+    }
+
+    private void loadData(int next) {
+
+        executeRequest(
+                new GsonRequest(String.format(UnsplashAPI.GET_PHOTOS_BY_USER, mUsername, String.valueOf(next)), new TypeToken<List<Photo>>() {}.getType(), responseListener(), errorListener()));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ImageCacheManager.cancelDisplayingTask(profile);
+        mProfileRequest.cancelRequest();
     }
 
     @Override

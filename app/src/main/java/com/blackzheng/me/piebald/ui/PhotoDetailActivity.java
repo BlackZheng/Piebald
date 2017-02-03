@@ -1,9 +1,9 @@
 package com.blackzheng.me.piebald.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,24 +13,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.toolbox.ImageLoader;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
+import com.blackzheng.me.piebald.data.GsonRequest;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.Downloader;
 import com.blackzheng.me.piebald.util.DrawableUtil;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.StringUtil;
 import com.blackzheng.me.piebald.util.ToastUtils;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
-
-import net.youmi.android.normal.banner.BannerManager;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.Random;
 
@@ -40,18 +40,12 @@ import permissions.dispatcher.OnNeverAskAgain;
 import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 /**
  * 用于显示图片详情页面
  */
 @RuntimePermissions
 public class PhotoDetailActivity extends BaseActivity {
-
-    private static final String TAG = LogHelper.makeLogTag(PhotoDetailActivity.class);
     private Drawable mDefaultImageDrawable;
     public static final String PHOTO_ID = "photo_id";
     public static final String DOWNLOAD_URL = "download_url";
@@ -71,7 +65,8 @@ public class PhotoDetailActivity extends BaseActivity {
     private TextView exposure_time;
     private TextView focal_length;
     private TextView iso;
-    private LinearLayout adLayout;
+    private ImageLoader.ImageContainer photoRequest;
+    private ImageLoader.ImageContainer profileRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,17 +78,17 @@ public class PhotoDetailActivity extends BaseActivity {
         getIntentData();
         initView();
         detailed_photo =  Photo.getFromCache(id);
-
-        if(detailed_photo == null){
-            getJson();
-        }
-        else if  (detailed_photo.exif == null){
-            getJson();
-        }
-        else {
-            setView(detailed_photo);
+        setView(detailed_photo);
+        if  (detailed_photo.exif != null){
             setExif(detailed_photo);
         }
+        else {
+
+            executeRequest(new GsonRequest(String.format(UnsplashAPI.GET_SPECIFIC_PHOTO, id), new TypeToken<Photo>() {
+            }.getType(),
+                    responseListener(), errorListener()));
+        }
+
     }
 
     private void initView() {
@@ -115,29 +110,8 @@ public class PhotoDetailActivity extends BaseActivity {
                     PhotoDetailActivityPermissionsDispatcher.downloadWithCheck(PhotoDetailActivity.this);
                 }
             });
-
-        //初始化广告
-        adLayout = (LinearLayout)findViewById(R.id.adLayout);
-        View adView = BannerManager.getInstance(this).getBanner(this);
-        adLayout.addView(adView);
     }
 
-    private void getJson(){
-        LogHelper.d(TAG, "getJson");
-        Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getPhoto(id, UnsplashAPI.CLIENT_ID)
-            .subscribeOn(Schedulers.io())
-            . observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Action1<Photo>() {
-                @Override
-                public void call(Photo photo) {
-                    LogHelper.d(TAG, "getJson: onNext " + photo.id);
-                    setView(photo);
-                    setExif(photo);
-                    Photo.addToCache(photo);
-                }
-            }, ERRORACTION);
-        addSubscription(subscription);
-    }
     /**
      * 请求下载权限并进行下载
      */
@@ -171,13 +145,11 @@ public class PhotoDetailActivity extends BaseActivity {
     void showNeverAskForCamera() {
         ToastUtils.showShort(R.string.no_permisson_toast);
     }
-
     private void setView(final Photo detailed_photo) {
         if (detailed_photo.color != null)
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(detailed_photo.color));
-        int width = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay().getWidth();
-        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.urls.small), photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*detailed_photo.height/detailed_photo.width));
+        photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.urls.small), ImageCacheManager
+                .getImageListener(photo, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         if (detailed_photo.user.name != null)
             photo_by.setText("By " + Decoder.decodeStr(detailed_photo.user.name));
 
@@ -197,7 +169,9 @@ public class PhotoDetailActivity extends BaseActivity {
      * @param detailed_photo
      */
     private void setExif(final Photo detailed_photo){
-        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), profile, mDefaultImageDrawable);
+
+        profileRequest = ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), ImageCacheManager
+                .getProfileListener(profile, mDefaultImageDrawable, mDefaultImageDrawable), 0, 0);
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -223,12 +197,27 @@ public class PhotoDetailActivity extends BaseActivity {
         iso.setText(detailed_photo.exif.iso + "");
     }
 
+    protected Response.Listener<Photo> responseListener() {
+        return new Response.Listener<Photo>() {
+            @Override
+            public void onResponse(final Photo response) {
+
+                setExif(response);
+                Photo.addToCache(response);
+
+            }
+        };
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ImageCacheManager.cancelDisplayingTask(photo);
-        ImageCacheManager.cancelDisplayingTask(profile);
+        if (photoRequest != null) {
+            photoRequest.cancelRequest();
+        }
+        if (profileRequest != null) {
+            profileRequest.cancelRequest();
+        }
     }
 
     @Override

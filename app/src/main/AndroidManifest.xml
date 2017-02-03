@@ -8,9 +8,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".App"
@@ -66,23 +63,15 @@
             android:name=".ui.UserAlbumActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.CollectionActivity" />
-        <activity android:name=".ui.FeedbackActivity"></activity>
-
-
-        <!-- 友盟的KEY -->
+        <!--友盟的KEY-->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="57bf81cbe0f55a218d001902" />
-
+            android:value="" />
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="${UMENG_CHANNEL_VALUE}" />
-        <meta-data
-            android:name="UMENG_MESSAGE_SECRET"
-            android:value="c6841086f82b3d62a51194e9aaced3f2" />
+            android:value="wandoujia" />
 
-
+        <activity android:name=".ui.CollectionActivity"></activity>
     </application>
 
 </manifest>

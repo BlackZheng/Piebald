@@ -8,14 +8,11 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.blackzheng.me.piebald.R;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ShareBitmapHolder;
 import com.blackzheng.me.piebald.util.ShareImgToWX;
 import com.umeng.analytics.MobclickAgent;
 
 public class ShareSelectActivity extends AppCompatActivity {
-
-    private static final String TAG = LogHelper.makeLogTag(ShareSelectActivity.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -3,6 +3,7 @@ package com.blackzheng.me.piebald.model;
 import android.database.Cursor;
 
 import com.blackzheng.me.piebald.dao.CollectionDataHelper;
+import com.blackzheng.me.piebald.dao.ContentDataHelper;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.HashMap;
  */
 public class Collection extends BaseModel {
 
-    private static final HashMap<String, Collection> CACHE = new HashMap<String, Collection>();
+    private static final HashMap<Integer, Collection> CACHE = new HashMap<Integer, Collection>();
     public int id;
     public String title;
     public String description;
@@ -23,10 +24,10 @@ public class Collection extends BaseModel {
     public User user;
 
     public static void addToCache(Collection collection) {
-        CACHE.put(String.valueOf(collection.id), collection);
+        CACHE.put(collection.id, collection);
     }
 
-    public static Collection getFromCache(String id) {
+    public static Collection getFromCache(int id) {
         return CACHE.get(id);
     }
 
@@ -35,9 +36,9 @@ public class Collection extends BaseModel {
     }
 
     public static Collection fromCursor(Cursor cursor) {
-        String id;
+        int id;
         try{
-            id = cursor.getString(cursor.getColumnIndex(CollectionDataHelper.ContentDBInfo.ID));
+            id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(CollectionDataHelper.ContentDBInfo.ID)));
         }catch (Exception e){
             String error = cursor.getString(cursor.getColumnIndex(CollectionDataHelper.ContentDBInfo.JSON));
             throw new RuntimeException(error);

@@ -2,36 +2,36 @@ package com.blackzheng.me.piebald.ui.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
+import com.android.volley.Response;
 import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
 import com.blackzheng.me.piebald.dao.BaseDataHelper;
 import com.blackzheng.me.piebald.dao.CollectionDataHelper;
+import com.blackzheng.me.piebald.dao.ContentDataHelper;
+import com.blackzheng.me.piebald.data.GsonRequest;
 import com.blackzheng.me.piebald.model.Collection;
+import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.ui.CollectionActivity;
 import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.ui.adapter.BaseAbstractRecycleCursorAdapter;
 import com.blackzheng.me.piebald.ui.adapter.CollectionsListAdapter;
-import com.blackzheng.me.piebald.util.LogHelper;
+import com.blackzheng.me.piebald.util.TaskUtils;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
-
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by BlackZheng on 2016/8/27.
  */
 public class CollectionsFragment extends ContentFragment implements CollectionsListAdapter.OnItemClickLitener {
-    private static final String TAG = LogHelper.makeLogTag(CollectionsFragment.class);
+
     public static CollectionsFragment newInstance(String category) {
         CollectionsFragment categoryContentFragment = new CollectionsFragment();
         Bundle bundle = new Bundle();
@@ -61,44 +61,47 @@ public class CollectionsFragment extends ContentFragment implements CollectionsL
         return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
     }
 
+    @Override
+    protected GsonRequest getRequest(String category, int page) {
+        return new GsonRequest(String.format(UnsplashAPI.GET_CURATED, category.toLowerCase(), String.valueOf(page)), new TypeToken<List<Collection>>(){}.getType(),
+                responseListener(), errorListener());
+    }
 
     @Override
-    protected void getData(String category, String page) {
-        Log.d(TAG, "getData:" + category);
-        Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getCollections(CollectionDataHelper.COLLECTION_TYPE.get(category), page, UnsplashAPI.CLIENT_ID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .map(new Func1<List<Collection>, List<Collection>>() {
-
+    protected Response.Listener<List<Collection>> responseListener() {
+        return new Response.Listener<List<Collection>>() {
             @Override
-            public List<Collection> call(List<Collection> collections) {
-                String newId = "newId";
-                if(!collections.isEmpty())
-                    newId = String.valueOf(collections.get(0).id);
-                else
-                    return collections;
-                if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
-                    if (isRefreshFromTop) {
-                        ((CollectionDataHelper) mDataHelper).deleteAll();
-                    }
-                    ((CollectionDataHelper) mDataHelper).bulkInsert(collections);
+            public void onResponse(final List<Collection> response) {
+                if(response.size() < 1){    //已经拉到页尾了，隐藏进度圈
+                    list.hideMoreProgress();
+                    return;
                 }
-                return collections;
-            }
-        })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<Collection>>() {
+                final String newId = String.valueOf(response.get(0).id);
+                TaskUtils.executeAsyncTask(new AsyncTask<Object, Object, Object>() {
+
                     @Override
-                    public void call(List<Collection> collections) {
-                        if(collections.isEmpty())
-                            list.hideMoreProgress();
+                    protected Object doInBackground(Object... params) {
+                        if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
+                            if (isRefreshFromTop) {
+                                ((CollectionDataHelper)mDataHelper).deleteAll();
+                            }
+                            ((CollectionDataHelper)mDataHelper).bulkInsert(response);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        super.onPostExecute(o);
                         if (isRefreshFromTop) {
                             setRefreshFromTop(false);
                             setRefreshing(false);
                         }
                     }
-                }, ERRORACTION);
-        addSubscription(subscription);
+                });
+
+            }
+        };
     }
 
     @Override
@@ -109,8 +112,7 @@ public class CollectionsFragment extends ContentFragment implements CollectionsL
     @Override
     public void onItemClick(View view, Collection collection, int position) {
         Intent intent = new Intent(getActivity(), CollectionActivity.class);
-        intent.putExtra(CollectionActivity.ID, String.valueOf(collection.id));
-        intent.putExtra(CollectionActivity.IS_CURATED, String.valueOf(collection.curated));
+        intent.putExtra(CollectionActivity.ID, collection.id);
         startActivity(intent);
     }
 

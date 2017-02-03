@@ -35,7 +35,8 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/pub_time"
         android:textColor="@android:color/white"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:text="total : 50"/>
     <TextView
         android:id="@+id/curator"
         android:layout_margin="4dp"

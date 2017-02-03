@@ -1,16 +1,6 @@
 <resources>
-    <string name="version">v2.0.1</string>
+    <string name="version">v1.4.0</string>
     <string name="app_name">Piebald</string>
-    <string name="latest">Latest</string>
-    <string name="buildings">Buildings</string>
-    <string name="foodndrink">Food &amp; Drink</string>
-    <string name="nature">Nature</string>
-    <string name="people">People</string>
-    <string name="technology">Technology</string>
-    <string name="objects">Objects</string>
-    <string name="featured">Featured</string>
-    <string name="curated">Curated</string>
-
     <string name="action_settings">Settings</string>
     <string name="share">Share</string>
     <string name="sharr_to">Share To</string>
@@ -30,7 +20,7 @@
     <string name="iso">ISO</string>
     <string name="be_liked">Be liked</string>
     <string name="times">times</string>
-    <string name="unknown">-</string>
+    <string name="unknown">Unknown</string>
     <string name="published_at">Published at </string>
     <string name="total_photos">Total photos : </string>
     <string name="wrong_network">Please check your network</string>
@@ -45,18 +35,11 @@
     <string name="no_permisson_toast">You need to grant the Storage permisson in Setting -> Apps -> Permissions</string>
     <string name="path">Downloading Path</string>
     <string name="about">About</string>
-    <string name="feedback">Feedback</string>
     <string name="clear_cache">Clear Cache</string>
     <string name="cache_size">Cache Size:</string>
     <string name="declaration">Declaration</string>
     <string name="declaration_content">&#160;&#160;&#160;&#160;Piebald is an application for development practice. All
         pictures and related information are provided by Unsplash.com. </string>
-    <string name="feedback_subject">What problem do you want to report?</string>
-    <string name="feedback_content">Describe your problem here, which will help us to improve Piebald</string>
-    <string name="feedback_null_toast">The feedback description can not be empty</string>
-    <string name="feedback_success">Submit successfully</string>
-    <string name="feedback_fail">Submit fail</string>
-    <string name="submit">Submit</string>
     <string name="about_me">About Me</string>
     <string name="developer">Developer:</string>
     <string name="developer_name">Black Zheng</string>

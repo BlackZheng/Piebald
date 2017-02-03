@@ -9,7 +9,6 @@ import android.provider.BaseColumns;
 import android.support.v4.content.CursorLoader;
 
 import com.blackzheng.me.piebald.model.Photo;
-import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.util.database.Column;
 import com.blackzheng.me.piebald.util.database.SQLiteTable;
 
@@ -25,13 +24,13 @@ public class ContentDataHelper extends BaseDataHelper {
 
     public static final Map<String, Integer> CATEGORY_ID = new HashMap<String, Integer>();
     static{
-        CATEGORY_ID.put(MainActivity.LATEST, 0);
-        CATEGORY_ID.put(MainActivity.BUILDINGS, 2);
-        CATEGORY_ID.put(MainActivity.FOOD_AND_DRINK, 3);
-        CATEGORY_ID.put(MainActivity.NATURE, 4);
-        CATEGORY_ID.put(MainActivity.PEOPLE, 6);
-        CATEGORY_ID.put(MainActivity.TECHNOLOGY, 7);
-        CATEGORY_ID.put(MainActivity.OBJECTS, 8);
+        CATEGORY_ID.put("New", 0);
+        CATEGORY_ID.put("Buildings", 2);
+        CATEGORY_ID.put("Food & Drink", 3);
+        CATEGORY_ID.put("Nature", 4);
+        CATEGORY_ID.put("People", 6);
+        CATEGORY_ID.put("Technology", 7);
+        CATEGORY_ID.put("Objects", 8);
     }
     private String mCategory;
 
