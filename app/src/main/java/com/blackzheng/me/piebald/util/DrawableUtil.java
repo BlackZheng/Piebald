@@ -19,9 +19,9 @@ import com.blackzheng.me.piebald.R;
 public class DrawableUtil {
 
     private static final int[] COLORS = {R.color.holo_blue_light, R.color.holo_green_light, R.color.holo_orange_light, R.color.holo_purple_light, R.color.holo_red_light};
-//    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
-//            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 16;
-//    private static final LruCache<String, BitmapDrawable> DRAWABLE_LRU_CACHE = new LruCache<>(MEM_CACHE_SIZE);
+    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
+            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 16;
+    private static final LruCache<String, BitmapDrawable> DRAWABLE_LRU_CACHE = new LruCache<>(MEM_CACHE_SIZE);
     /**
      * 根据宽高得到适当尺寸的Drawable
      * @param drawable
