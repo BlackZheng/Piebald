@@ -77,7 +77,9 @@ public class ContentAdapter extends BaseAbstractRecycleCursorAdapter<ContentAdap
 
             }
         });
-        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), holder.photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, mWidth, mWidth*photo.height/photo.width));
+        LogHelper.d(TAG, "onBindViewHolder() " + photo.id);
+        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), holder.photo, DrawableUtil.getDrawable(photo.color, mWidth, mWidth*photo.height/photo.width));
+//        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.small), holder.photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, mWidth, mWidth*photo.height/photo.width));
         ImageCacheManager.loadImage(Decoder.decodeURL(photo.user.profile_image.small), holder.profile, mDefaultImageDrawable);
         holder.username.setText(photo.user.name);
         holder.like_num.setText(String.valueOf(photo.likes));

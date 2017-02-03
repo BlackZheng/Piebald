@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.LruCache;
 
 import com.blackzheng.me.piebald.App;
@@ -19,9 +20,18 @@ import com.blackzheng.me.piebald.R;
 public class DrawableUtil {
 
     private static final int[] COLORS = {R.color.holo_blue_light, R.color.holo_green_light, R.color.holo_orange_light, R.color.holo_purple_light, R.color.holo_red_light};
-//    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
-//            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 16;
-//    private static final LruCache<String, BitmapDrawable> DRAWABLE_LRU_CACHE = new LruCache<>(MEM_CACHE_SIZE);
+    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
+            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 16;
+    private static final LruCache<String, Bitmap> DRAWABLE_LRU_CACHE = new LruCache<String, Bitmap>(10){
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+//                return value.getByteCount();
+//            }
+            // Pre HC-MR1
+            return 1;
+        }
+    };
     /**
      * 根据宽高得到适当尺寸的Drawable
      * @param drawable
@@ -39,17 +49,16 @@ public class DrawableUtil {
         drawable.draw(canvas);// 把drawable内容画到画布中
         return new BitmapDrawable(bitmap);
     }
-//    public static Drawable getDrawable(String color, int width, int height){
-//        BitmapDrawable bd = DRAWABLE_LRU_CACHE.get(color);
-//        if(bd == null){
-//            Bitmap.Config config = Bitmap.Config.RGB_565;
-//            Bitmap bitmap = Bitmap.createBitmap(width, height, config);
-//            bitmap.eraseColor(Color.parseColor(color));
-//            bd = new BitmapDrawable(bitmap);
-//            DRAWABLE_LRU_CACHE.put(color, bd);
-//        }
-//        return bd;
-//    }
+    public static Drawable getDrawable(String color, int width, int height){
+        Bitmap bitmap = DRAWABLE_LRU_CACHE.get(color);
+        if(bitmap == null){
+            Bitmap.Config config = Bitmap.Config.RGB_565;
+            bitmap = Bitmap.createBitmap(width, height, config);
+            bitmap.eraseColor(Color.parseColor(color));
+            DRAWABLE_LRU_CACHE.put(color, bitmap);
+        }
+        return new BitmapDrawable(bitmap);
+    }
     public static int[] getDefaultColors(){
         return COLORS;
     }
