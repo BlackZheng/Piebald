@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <!-- 主体背景颜色值 -->
+    <item>
+        <bitmap android:src="@drawable/profile"/>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="#33bfbfbf" />
+        </shape>
+    </item>
+</layer-list>

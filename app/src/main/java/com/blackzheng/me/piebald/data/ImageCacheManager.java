@@ -11,6 +11,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
