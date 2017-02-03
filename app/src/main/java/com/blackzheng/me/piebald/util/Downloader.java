@@ -85,7 +85,7 @@ public class Downloader {
     }
 
     /**
-     * 采用第三方狂街FileDownloader进行下载
+     * 采用第三方框架FileDownloader进行下载
      * @param downloadUrl
      * @param fileName
      */

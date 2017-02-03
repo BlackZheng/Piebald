@@ -2,33 +2,39 @@ package com.blackzheng.me.piebald.ui.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
-import com.android.volley.Response;
 import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
 import com.blackzheng.me.piebald.dao.BaseDataHelper;
 import com.blackzheng.me.piebald.dao.ContentDataHelper;
-import com.blackzheng.me.piebald.data.GsonRequest;
 import com.blackzheng.me.piebald.model.Photo;
+import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.ui.PhotoDetailActivity;
 import com.blackzheng.me.piebald.ui.adapter.BaseAbstractRecycleCursorAdapter;
 import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
-import com.blackzheng.me.piebald.util.TaskUtils;
-import com.google.gson.reflect.TypeToken;
+import com.blackzheng.me.piebald.util.LogHelper;
 
 import java.util.List;
+
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by BlackZheng on 2016/4/7.
  */
 public class CategoryContentFragment extends ContentFragment implements ContentAdapter.OnItemClickLitener{
+
+    private static final String TAG = LogHelper.makeLogTag(CategoryContentFragment.class);
 
     public static CategoryContentFragment newInstance(String category) {
         CategoryContentFragment categoryContentFragment = new CategoryContentFragment();
@@ -61,49 +67,53 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
         }
     }
 
-    @Override
-    protected GsonRequest getRequest(String category, int page) {
-
-        if(category.equals("New"))
-            return new GsonRequest(String.format(UnsplashAPI.LIST_PHOTOS, String.valueOf(page)), new TypeToken<List<Photo>>(){}.getType(),
-                    responseListener(), errorListener());
-        else
-            return new GsonRequest(String.format(UnsplashAPI.GET_PHOTOS_BY_CATEGORY, ContentDataHelper.CATEGORY_ID.get(mCategory), String.valueOf(page)), new TypeToken<List<Photo>>(){}.getType(),
-                    responseListener(), errorListener());
-    }
 
     @Override
-    protected Response.Listener<List<Photo>> responseListener() {
-
-        return new Response.Listener<List<Photo>>() {
-            @Override
-            public void onResponse(final List<Photo> response) {
-                final String newId = response.get(0).id;
-                TaskUtils.executeAsyncTask(new AsyncTask<Object, Object, Object>() {
+    protected void getData(String category, String page) {
+        Log.d(TAG, "getData:" + category);
+        Subscription subscription = getObservable(category, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .map(new Func1<List<Photo>, List<Photo>>() {
 
                     @Override
-                    protected Object doInBackground(Object... params) {
+                    public List<Photo> call(List<Photo> photos) {
+                        Log.d(TAG, "call:" + photos);
+                        String newId = "newId";
+                        if(!photos.isEmpty())
+                            newId = photos.get(0).id;
+                        else
+                            return photos;
                         if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
                             if (isRefreshFromTop) {
-                                ((ContentDataHelper)mDataHelper).deleteAll();
+                                ((ContentDataHelper) mDataHelper).deleteAll();
                             }
-                            ((ContentDataHelper)mDataHelper).bulkInsert(response);
+                            ((ContentDataHelper) mDataHelper).bulkInsert(photos);
                         }
-                        return null;
+                        return photos;
                     }
-
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<Photo>>() {
                     @Override
-                    protected void onPostExecute(Object o) {
-                        super.onPostExecute(o);
+                    public void call(List<Photo> photos) {
+                        if(photos.isEmpty())
+                            list.hideMoreProgress();
                         if (isRefreshFromTop) {
                             setRefreshFromTop(false);
                             setRefreshing(false);
                         }
                     }
-                });
+                }, ERRORACTION);
+        addSubscription(subscription);
+    }
 
-            }
-        };
+    protected Observable<List<Photo>> getObservable(String category, String page) {
+        Log.d(TAG, "getObservable:" + category);
+        if(category.equals(MainActivity.LATEST))
+            return UnsplashAPI.getInstance().getUnsplashService().getLatestPhotos(page, UnsplashAPI.CLIENT_ID);
+        else
+            return UnsplashAPI.getInstance().getUnsplashService().getPhotosByCategory(String.valueOf(ContentDataHelper.CATEGORY_ID.get(mCategory)), page, UnsplashAPI.CLIENT_ID);
     }
 
     @Override
