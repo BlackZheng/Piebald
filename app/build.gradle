@@ -1,80 +1,32 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 
-def releaseTime() {
-    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
-}
 repositories {
     jcenter()
     maven { url "http://dl.bintray.com/jjhesk/maven" }
     maven { url 'http://guardian.github.com/maven/repo-releases' }
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
 }
 android {
-    signingConfigs {
-        release {
-            keyAlias 'key_of_black'
-            keyPassword 'zhj1562786'
-            storeFile file('F:/projects/key.jks')
-            storePassword 'zhj1562786'
-        }
-    }
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-    useLibrary 'org.apache.http.legacy'
+
     defaultConfig {
         applicationId "com.blackzheng.me.piebald"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 8
-        versionName "2.0.1"
-        manifestPlaceholders = [UMENG_CHANNEL_VALUE: "black_zheng"]
+        versionCode 7
+        versionName "2.0.0"
     }
     buildTypes {
         release {
-            // 不显示Log
-            buildConfigField "boolean", "LOG_DEBUG", "false"
-
-            zipAlignEnabled true
-            // 移除无用的resource文件
-            shrinkResources true
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def outputFile = output.outputFile
-                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                        // 输出apk名称为Piebald_v1.0_2015-01-15_wandoujia.apk
-                        def fileName = "Piebald_v${defaultConfig.versionName}_${releaseTime()}_${variant.productFlavors[0].name}.apk"
-                        output.outputFile = new File(outputFile.parent, fileName)
-                    }
-                }
-            }
         }
-    }
-    sourceSets {
-        main.jniLibs.srcDirs = ['libs']
     }
     sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
-    productFlavors {
-        no_market {}
-        wandoujia {}
-        tencent {}
-        huawei {}
-        google {}
-        xiaomi {}
-        meizu {}
-        baidu {}
-        gfan {}
-        _360 {}
-        uc {}
-
-        productFlavors.all { flavor ->
-            flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
-        }
-
-    }
 }
 allprojects {
     gradle.projectsEvaluated {
@@ -98,13 +50,8 @@ dependencies {
     compile 'uk.co.chrisjenx:calligraphy:2.2.0'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile project(':library')
+
     compile 'com.liulishuo.filedownloader:library:0.3.1'
     compile 'com.github.hotchemi:permissionsdispatcher:2.1.3'
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.squareup.retrofit2:converter-gson:+'
-    compile 'com.squareup.retrofit2:adapter-rxjava:+'
-    compile 'io.reactivex:rxjava:+'
     apt 'com.github.hotchemi:permissionsdispatcher-processor:2.1.3'
-    compile project(':PushSDK')
 }

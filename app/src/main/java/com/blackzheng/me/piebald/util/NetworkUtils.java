@@ -10,7 +10,6 @@ import android.util.Log;
  * Created by BlackZheng on 2016/4/14.
  */
 public class NetworkUtils {
-    private static final String TAG = LogHelper.makeLogTag(NetworkUtils.class);
     public static final int NOT_NETWORK = 0x01;
     public static final int TYPE_WIFI = 0x02;
     public static final int TYPE_MOBILE= 0x03;
@@ -33,7 +32,7 @@ public class NetworkUtils {
             {
                 String _strSubTypeName = networkInfo.getSubtypeName();
 
-                LogHelper.d(TAG, "Network getSubtypeName : " + _strSubTypeName);
+                Log.e("cocos2d-x", "Network getSubtypeName : " + _strSubTypeName);
 
                 // TD-SCDMA   networkType is 17
                 int networkType = networkInfo.getSubtype();
@@ -77,10 +76,12 @@ public class NetworkUtils {
 
                         break;
                 }
-                LogHelper.d(TAG, "Network getSubtype : " + Integer.valueOf(networkType).toString());
+
+                Log.e("cocos2d-x", "Network getSubtype : " + Integer.valueOf(networkType).toString());
             }
         }
-        LogHelper.d(TAG, "Network Type : " + strNetworkType);
+
+        Log.e("cocos2d-x", "Network Type : " + strNetworkType);
 
         return type;
     }

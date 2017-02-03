@@ -21,8 +21,14 @@ public class Decoder {
 
     //String in non-English language need to be decoded
     public static String decodeStr(String str){
-        if(str != null)
-            return str;
+        if(str != null){
+            try {
+                return new String(str.getBytes("iso8859-1"), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+
         return "Unknown";
     }
 }

@@ -7,17 +7,21 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
+import com.blackzheng.me.piebald.model.User;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DrawableUtil;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import java.util.Random;
@@ -27,7 +31,6 @@ import java.util.Random;
  */
 public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbumAdapter.PhotoViewHolder> {
 
-    private static final String TAG = LogHelper.makeLogTag(UserAlbumAdapter.class);
     private Resources mResource;
     private Drawable mDefaultImageDrawable;
     private OnItemClickLitener mOnItemClickLitener;
@@ -53,7 +56,9 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
     @Override
     public void onBindViewHolder(final UserAlbumAdapter.PhotoViewHolder holder, Cursor cursor) {
 
-        ImageCacheManager.cancelDisplayingTask(holder.photo);
+        if (holder.photoRequest != null) {
+            holder.photoRequest.cancelRequest();
+        }
         final Photo photo = Photo.fromCursor(cursor);
         if(photo.color != null){
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(photo.color));
@@ -67,7 +72,11 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
                 mOnItemClickLitener.onItemClick(holder.photo, photo, pos);
             }
         });
-        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.thumb), holder.photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*photo.height/photo.width));
+        holder.photoRequest = ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.thumb), ImageCacheManager
+                .getImageListener(holder.photo,
+                        DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*photo.height/photo.width),
+                        mDefaultImageDrawable), 0, 0);
+
     }
 
     public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener)
@@ -77,6 +86,7 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
         public AdjustableImageView photo;
+        public ImageLoader.ImageContainer photoRequest;
 
         public PhotoViewHolder(View itemView) {
             super(itemView);

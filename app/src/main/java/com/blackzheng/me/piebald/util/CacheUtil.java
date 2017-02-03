@@ -1,19 +1,22 @@
 package com.blackzheng.me.piebald.util;
 
+import com.blackzheng.me.piebald.App;
+import com.blackzheng.me.piebald.data.RequestManager;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 
-/**主要用于获取缓存大小和清除缓存
+/**主要用于获取缓存大小和清楚缓存
  * Created by BlackZheng on 2016/8/18.
  */
 public class CacheUtil {
 
     public static void clearDiskCache(){
+        RequestManager.mRequestQueue.getCache().clear();
         ImageLoader.getInstance().clearDiskCache();
     }
     public static long getDiskCacheSize(){
-        return getUILDiskCacheSize();
+        return getVolleyDiskCacheSize() + getUILDiskCacheSize();
     }
 
     private static long getUILDiskCacheSize() {
@@ -27,6 +30,16 @@ public class CacheUtil {
         return size;
     }
 
+    private static long getVolleyDiskCacheSize() {
+        long size;
+        try {
+            size = getFileSize(new File(App.getContext().getCacheDir().getAbsolutePath() + "/volley"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            size = 0;
+        }
+        return size;
+    }
     private static long getFileSize(File f)throws Exception    //取得文件夹大小
     {
         long size = 0;

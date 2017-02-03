@@ -4,47 +4,32 @@ package com.blackzheng.me.piebald.ui;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.NavigationView;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 
-import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
-import com.blackzheng.me.piebald.api.UnsplashAPI;
+import com.blackzheng.me.piebald.data.RequestManager;
+import com.blackzheng.me.piebald.ui.adapter.DrawerAdapter;
 import com.blackzheng.me.piebald.ui.fragment.CategoryContentFragment;
 import com.blackzheng.me.piebald.ui.fragment.CollectionsFragment;
 import com.blackzheng.me.piebald.ui.fragment.ContentFragment;
 import com.blackzheng.me.piebald.ui.listener.OnDoubleClickListener;
-import com.blackzheng.me.piebald.util.Constants;
-import com.blackzheng.me.piebald.util.DensityUtils;
-import com.blackzheng.me.piebald.util.LogHelper;
-import com.blackzheng.me.piebald.util.ResourceUtil;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
-import net.youmi.android.AdManager;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnShowRationale;
@@ -52,60 +37,67 @@ import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends BaseActivity implements OnDoubleClickListener{
-    private static final String TAG = LogHelper.makeLogTag(MainActivity.class);
+public class MainActivity extends BaseActivity implements DrawerAdapter.OnItemClickLitener, OnDoubleClickListener{
 
-    public static final String LATEST = ResourceUtil.getStringFromRes(App.getContext(), R.string.latest);
-    public static final String BUILDINGS = ResourceUtil.getStringFromRes(App.getContext(), R.string.buildings);
-    public static final String FOOD_AND_DRINK = ResourceUtil.getStringFromRes(App.getContext(), R.string.foodndrink);
-    public static final String NATURE = ResourceUtil.getStringFromRes(App.getContext(), R.string.nature);
-    public static final String PEOPLE = ResourceUtil.getStringFromRes(App.getContext(), R.string.people);
-    public static final String TECHNOLOGY = ResourceUtil.getStringFromRes(App.getContext(), R.string.technology);
-    public static final String OBJECTS = ResourceUtil.getStringFromRes(App.getContext(), R.string.objects);
-    public static final String FEATURED = ResourceUtil.getStringFromRes(App.getContext(), R.string.featured);
-    public static final String CURATED = ResourceUtil.getStringFromRes(App.getContext(), R.string.curated);
+    public static final String HEADER = "Header";
+    public static final String DIVIDER = "Divider";
+    public static final String NEW = "New";
+    public static final String BUILDINGS = "Buildings";
+    public static final String FOOD_AND_DRINK = "Food & Drink";
+    public static final String NATURE = "Nature";
+    public static final String PEOPLE = "People";
+    public static final String TECHNOLOGY = "Technology";
+    public static final String OBJECTS = "Objects";
+    public static final String FEATURED = "Featured";
+    public static final String CURATED = "Curated";
 
+    //对应侧滑菜单的列表项
+    private String[] mDrawerList = {
+            HEADER,
+            NEW,
+            BUILDINGS,
+            FOOD_AND_DRINK,
+            NATURE,
+            PEOPLE,
+            TECHNOLOGY,
+            OBJECTS,
+            DIVIDER,
+            FEATURED,
+            CURATED
+    };
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+    private RecyclerView drawerlist;
     private Toolbar mToolbar;
     private ContentFragment mContentFragment;
-    private String mCategory = LATEST;//default category
-    private MenuItem currentMenuItem;
-    private RelativeLayout splashView;
-    private LinearLayout adLayout;
-    private NavigationView navView;
-    private ImageView headerImage;
-    private Drawable currentHeaderDrawable;
+    private String mCategory = "New";//default category
+    private FrameLayout splashView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogHelper.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         initSplashView();//初始化启动页面
-        initAD();
-
-        MainActivityPermissionsDispatcher.requestPermissionWithCheck(this); //请求权限
+        //请求权限
+        MainActivityPermissionsDispatcher.requestPermissionWithCheck(this);
+        mContentFragment = CategoryContentFragment.newInstance(mCategory);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, mContentFragment)
+                .commit();
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        initActionBar(mToolbar);
         registerDoubleClickListener(mToolbar, this);//给toolbar注册双击监听
+        initActionBar(mToolbar);
         initDrawer();//初始化侧滑菜单
-        currentMenuItem = navView.getMenu().findItem(R.id.latest);
-        switchFragment(currentMenuItem);
-        currentMenuItem.setChecked(true);
-    }
 
-    private void initAD() {
-        AdManager.getInstance(this).init(Constants.YOUMI_APP_ID, Constants.YOUMI_SECRET, false, false);
-//        adLayout = (LinearLayout)findViewById(R.id.adLayout);
-//        View adView = BannerManager.getInstance(this).getBanner(this);
-//        adLayout.addView(adView);
+        getSupportActionBar().setTitle(mCategory);
+
+
     }
 
     private void initSplashView() {
-        splashView = (RelativeLayout) findViewById(R.id.splash_view);
+        splashView = (FrameLayout) findViewById(R.id.splash_view);
         AlphaAnimation animation=new AlphaAnimation(1.0f,1.0f);
         animation.setDuration(2000);
         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -127,11 +119,11 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
         splashView.setAnimation(animation);
     }
 
-    @NeedsPermission({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @NeedsPermission(Manifest.permission.READ_PHONE_STATE)
     void requestPermission(){
-        LogHelper.d(TAG, "Granted Photo Permission");
+        Log.d("Piebald", "Granted Photo Permission");
     }
-    @OnShowRationale({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    @OnShowRationale(Manifest.permission.READ_PHONE_STATE)
     void showRationaleForCamera(final PermissionRequest request) {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.phone_permission_showRationale)
@@ -151,96 +143,29 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
     }
 
     private void initDrawer(){
-        currentHeaderDrawable = ContextCompat.getDrawable(this, R.drawable.drawer_header_bg);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_left);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerToggle.syncState();
-
-        navView = (NavigationView) findViewById(R.id.nav_view);
-        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                LogHelper.d(TAG,"NavigationItemSelected: "+ "groupId: " + item.getGroupId() + ",itemId: " + item.getItemId() + ", itemTitle:" + item.getTitle());
-                if(currentMenuItem != null && item != currentMenuItem){
-                    switchFragment(item);
-                    currentMenuItem = item;
-                }
-                mDrawerLayout.closeDrawers();
-                return true;
-            }
-        });
-        int[][] state = new int[][]{
-                new int[]{-android.R.attr.state_checked}, // unchecked
-                new int[]{android.R.attr.state_checked}  // pressed
-        };
-        int[] color = new int[]{
-                Color.BLACK, ContextCompat.getColor(this,R.color.colorPrimary)};
-        navView.setItemTextColor(new ColorStateList(state, color));
-        headerImage = (ImageView) navView.getHeaderView(0).findViewById(R.id.drawer_header);
-        refreshHeaderImage(headerImage);
-        navView.getHeaderView(0).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogHelper.d(TAG, "click drawer");
-                refreshHeaderImage(headerImage);
-            }
-        });
-    }
-    private void refreshHeaderImage(ImageView imageView){
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(currentHeaderDrawable)
-                .showImageOnFail(currentHeaderDrawable)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .considerExifParams(false)
-                .build();
-        ImageLoader.getInstance().displayImage(String.format(UnsplashAPI.GET_RANDOM_PHOTOS, DensityUtils.dip2px(this, 340f), DensityUtils.dip2px(this, 200f))
-                , imageView, options, new SimpleImageLoadingListener(){
-                    @Override
-                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        super.onLoadingComplete(imageUri, view, loadedImage);
-                        currentHeaderDrawable = new BitmapDrawable(getResources(), loadedImage);
-                    }
-                });
-    }
-    private void switchFragment(MenuItem item){
-        String title = item.getTitle().toString();
-        switch (item.getGroupId()){
-            case R.id.g1:
-                mContentFragment = CategoryContentFragment.newInstance(title);
-                break;
-            case R.id.g2:
-                mContentFragment = CollectionsFragment.newInstance(title);
-                break;
-
-        }
-        getSupportActionBar().setTitle(title);
-        getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_from_left, R.anim.slide_out_to_right)
-                .replace(R.id.content_frame, mContentFragment)
-                .commitAllowingStateLoss();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        }else
-            super.onBackPressed();
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        drawerlist = (RecyclerView) findViewById(R.id.drawer_list);
+        drawerlist.setLayoutManager(new LinearLayoutManager(this));
+        DrawerAdapter adapter = new DrawerAdapter(this, mDrawerList);
+        adapter.setOnItemClickLitener(this);
+        drawerlist.setAdapter(adapter);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LogHelper.d(TAG, "onDestroy");
-        ImageLoader.getInstance().stop();
+        RequestManager.cancelAll(this);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LogHelper.d(TAG, "onConfigurationChanged");
         mDrawerToggle.onConfigurationChanged(newConfig);
-        switchFragment(currentMenuItem);
+        mContentFragment = CategoryContentFragment.newInstance(mCategory);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, mContentFragment).commit();
     }
 
     @Override
@@ -319,6 +244,28 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
                 }
             }
         });
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        if(!mCategory.equals(mDrawerList[position])){ //如果是相同类别则不置换fragment
+            mCategory = mDrawerList[position];
+            if(position < 9){
+                mContentFragment = CategoryContentFragment.newInstance(mCategory);
+            }
+            else
+                mContentFragment = CollectionsFragment.newInstance(mCategory);
+            getSupportActionBar().setTitle(mCategory);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, mContentFragment)
+                    .commit();
+        }
+        mDrawerLayout.closeDrawers();
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
     }
 
     @Override

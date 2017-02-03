@@ -14,9 +14,9 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.dao.CollectionDataHelper;
 import com.blackzheng.me.piebald.dao.PhotoCollectionDataHelper;
 import com.blackzheng.me.piebald.dao.UserAlbumDataHelper;
+import com.blackzheng.me.piebald.model.Collection;
 import com.blackzheng.me.piebald.util.CacheUtil;
 import com.blackzheng.me.piebald.util.Downloader;
-import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.PathUtils;
 import com.blackzheng.me.piebald.util.TaskUtils;
 import com.blackzheng.me.piebald.util.ToastUtils;
@@ -24,10 +24,12 @@ import com.blackzheng.me.piebald.util.ToastUtils;
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
-public class SettingActivity extends BaseActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final String TAG = LogHelper.makeLogTag(SettingActivity.class);
+public class SettingActivity extends BaseActivity {
     private static final int REQUEST_DIRECTORY = 0;
+    private static final String TAG = "DirChooserSample";
     private Toolbar mToolbar;
     private String mOldPath;
     private String mNewPath;
@@ -132,11 +134,6 @@ public class SettingActivity extends BaseActivity {
 
     public void about(View view) {
         Intent intent = new Intent(this, AboutActivity.class);
-        startActivity(intent);
-    }
-
-    public void feedback(View view){
-        Intent intent = new Intent(this, FeedbackActivity.class);
         startActivity(intent);
     }
     public void clearCache(View view){
