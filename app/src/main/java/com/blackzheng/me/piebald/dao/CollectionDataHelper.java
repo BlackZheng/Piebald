@@ -9,18 +9,24 @@ import android.provider.BaseColumns;
 import android.support.v4.content.CursorLoader;
 
 import com.blackzheng.me.piebald.model.Collection;
-import com.blackzheng.me.piebald.model.Photo;
+import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.util.database.Column;
 import com.blackzheng.me.piebald.util.database.SQLiteTable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by BlackZheng on 2016/8/27.
  */
 public class CollectionDataHelper extends  BaseDataHelper{
-    
+    public static final Map<String, String> COLLECTION_TYPE = new HashMap<String, String>();
+    static{
+        COLLECTION_TYPE.put(MainActivity.CURATED, "curated");
+        COLLECTION_TYPE.put(MainActivity.FEATURED, "featured");
+    }
     private boolean isCurated;
     
     public CollectionDataHelper(Context context, boolean isCurated) {
@@ -107,7 +113,7 @@ public class CollectionDataHelper extends  BaseDataHelper{
         public static final String JSON = "json";
 
         public static final SQLiteTable TABLE = new SQLiteTable(TABLE_NAME)
-                .addColumn(ID, Column.DataType.INTEGER)
+                .addColumn(ID, Column.DataType.TEXT)
                 .addColumn(CURATED, Column.DataType.INTEGER).addColumn(JSON, Column.DataType.TEXT);
     }
 }

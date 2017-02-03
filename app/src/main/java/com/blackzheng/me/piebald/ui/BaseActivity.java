@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,14 +13,14 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.blackzheng.me.piebald.R;
-import com.blackzheng.me.piebald.data.RequestManager;
 import com.blackzheng.me.piebald.util.ToastUtils;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.message.PushAgent;
 
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.subscriptions.CompositeSubscription;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
@@ -26,6 +28,40 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
+    private static final int ERROR_TOAST = 0x321;
+    public static final Action1<Throwable> ERRORACTION = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable throwable) {
+            mHandler.sendEmptyMessage(ERROR_TOAST);
+        }
+    };
+    private static Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case ERROR_TOAST:
+                    ToastUtils.showLong(R.string.wrong_message);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+    private CompositeSubscription mCompositeSubscription;
+
+    protected void addSubscription(Subscription s) {
+        if (this.mCompositeSubscription == null) {
+            this.mCompositeSubscription = new CompositeSubscription();
+        }
+        this.mCompositeSubscription.add(s);
+    }
+
+    public void unsubcrible() {
+
+        if (this.mCompositeSubscription != null) {
+            this.mCompositeSubscription.unsubscribe();
+        }
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +79,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
+        PushAgent.getInstance(this).onAppStart();
     }
 
     @Override
@@ -72,22 +109,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unsubcrible();
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
-    protected void executeRequest(Request<?> request) {
-        RequestManager.addRequest(request, this);
-    }
-
-    protected Response.ErrorListener errorListener() {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                ToastUtils.showLong(R.string.wrong_message);
-            }
-        };
-    }
 }

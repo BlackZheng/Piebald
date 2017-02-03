@@ -3,8 +3,6 @@ package com.blackzheng.me.piebald.util;
 import android.os.AsyncTask;
 import android.os.Build;
 
-import java.util.concurrent.Executors;
-
 /**
  * Created by BlackZheng on 2016/4/7.
  */
