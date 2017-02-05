@@ -2,6 +2,7 @@ package com.blackzheng.me.piebald.ui.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.DefaultDatabaseErrorHandler;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -16,8 +17,10 @@ import com.blackzheng.me.piebald.dao.ContentDataHelper;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.ui.PhotoDetailActivity;
+import com.blackzheng.me.piebald.ui.UserAlbumActivity;
 import com.blackzheng.me.piebald.ui.adapter.BaseAbstractRecycleCursorAdapter;
 import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
+import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.LogHelper;
 
 import java.util.List;
@@ -35,6 +38,8 @@ import rx.schedulers.Schedulers;
 public class CategoryContentFragment extends ContentFragment implements ContentAdapter.OnItemClickLitener{
 
     private static final String TAG = LogHelper.makeLogTag(CategoryContentFragment.class);
+    public static final int TYPE_PHOTO = 0x0101;
+    public static final int TYPE_PROFILE = 0x0102;
 
     public static CategoryContentFragment newInstance(String category) {
         CategoryContentFragment categoryContentFragment = new CategoryContentFragment();
@@ -125,15 +130,31 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
     * Callback for Item Clicked
     */
     @Override
-    public void onItemClick(View view, Photo photo, int position) {
-        Intent intent = new Intent(getActivity(), PhotoDetailActivity.class);
-        intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
-        intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
-        startActivity(intent);
+    public void onItemClick(View view, Photo photo, int position, int type) {
+        Intent intent = null;
+        LogHelper.d(TAG, "onItem Click: " + type);
+        switch (type){
+            case Constants.TYPE_PHOTO:
+                intent = new Intent(getActivity(), PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
+                intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
+                startActivity(intent);
+                break;
+            case Constants.TYPE_PROFILE:
+                intent = new Intent(getActivity(), UserAlbumActivity.class);
+                intent.putExtra(UserAlbumActivity.USERNAME, photo.user.username);
+                intent.putExtra(UserAlbumActivity.NAME, photo.user.name);
+                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+
     }
 
     @Override
-    public void onItemLongClick(View view, Photo photo, int position) {
+    public void onItemLongClick(View view, Photo photo, int position, int type) {
 
     }
 }

@@ -179,12 +179,24 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
                 .subscribe(new Action1<List<Photo>>() {
                     @Override
                     public void call(List<Photo> photos) {
-                        LogHelper.d(TAG, "loadData: onNext");
-                        String newId = photos.get(0).id;
-                        if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
-                            if(mPage < 2)
-                                mDataHelper.deleteAll();
-                            mDataHelper.bulkInsert(photos);
+                        LogHelper.d(TAG, "loadData: onNext count " + photos.size());
+                        if(photos.size() > 0){
+                            String newId = photos.get(0).id;
+                            if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
+                                if(mPage < 2)
+                                    mDataHelper.deleteAll();
+                                mDataHelper.bulkInsert(photos);
+                            }
+                        }else{
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    View emptyView = list.getEmptyView();
+                                    emptyView.findViewById(R.id.empty_tip).setVisibility(View.VISIBLE);
+                                    emptyView.findViewById(R.id.progress).setVisibility(View.GONE);
+                                }
+                            });
+
                         }
                     }
                 }, ERRORACTION);

@@ -25,9 +25,7 @@ import net.qiujuer.genius.blur.StackBlur;
  * Created by BlackZheng on 2016/4/7.
  */
 public class ImageCacheManager {
-    // 取运行内存阈值的1/8作为图片缓存
-    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
-            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 8;
+
 
     private ImageCacheManager() {
 

@@ -43,6 +43,7 @@
     <string name="phone_permission_showRationale">请对应用进行授权以便Piebald能提供更好的服务</string>
     <string name="storage_permision_showRationale">没有下载图片的权限，您是否继续操作以授权</string>
     <string name="no_permisson_toast">您必须在设置 -> 应用程序 -> 权限里授权</string>
+    <string name="no_photo_tip">这个用户好像没有图片诶</string>
     <string name="path">下载路径</string>
     <string name="about">关于</string>
     <string name="feedback">反馈</string>

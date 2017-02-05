@@ -4,14 +4,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardUseCompatPadding="true"
     app:cardCornerRadius="4dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true"
     app:cardElevation="2dp">
-    <com.blackzheng.me.piebald.view.AdjustableImageView
+    <!--<ImageView-->
+        <!--android:id="@+id/cover_photo"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@drawable/shape_radius"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:adjustViewBounds="true" />-->
+    <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/cover_photo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true" />
+        android:tag="photo"
+        android:scaleType="fitXY"
+        app:riv_corner_radius="4dp"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -36,6 +46,7 @@
             android:id="@+id/profile"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:tag="profile"
             android:layout_toLeftOf="@id/curator"
             android:layout_alignTop="@id/curator" />
     </RelativeLayout>

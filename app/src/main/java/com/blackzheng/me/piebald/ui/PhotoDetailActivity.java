@@ -13,8 +13,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,7 +30,6 @@ import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.StringUtil;
 import com.blackzheng.me.piebald.util.ToastUtils;
-import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import net.youmi.android.normal.banner.BannerManager;
 
@@ -60,7 +61,7 @@ public class PhotoDetailActivity extends BaseActivity {
     private Photo detailed_photo;
 
     private Toolbar mToolbar;
-    private AdjustableImageView photo;
+    private ImageView photo;
     private CircleImageView profile;
     private TextView photo_by;
     private TextView location;
@@ -97,7 +98,7 @@ public class PhotoDetailActivity extends BaseActivity {
     }
 
     private void initView() {
-        photo = (AdjustableImageView) findViewById(R.id.photo);
+        photo = (ImageView) findViewById(R.id.photo);
         profile = (CircleImageView) findViewById(R.id.profile);
         photo_by = (TextView) findViewById(R.id.photo_by);
         location = (TextView) findViewById(R.id.location);
@@ -177,7 +178,16 @@ public class PhotoDetailActivity extends BaseActivity {
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(detailed_photo.color));
         int width = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay().getWidth();
-        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.urls.small), photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*detailed_photo.height/detailed_photo.width));
+        float scale = 1;
+        //some photo's width may be 0, which will cause FC
+        if(detailed_photo.width != 0){
+            scale = (float)detailed_photo.height / detailed_photo.width;
+        }
+        ViewGroup.LayoutParams lp = photo.getLayoutParams();
+        lp.height = (int) (width * scale);
+        photo.setLayoutParams(lp);
+
+        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.urls.small), photo, mDefaultImageDrawable);
         if (detailed_photo.user.name != null)
             photo_by.setText("By " + Decoder.decodeStr(detailed_photo.user.name));
 
@@ -197,7 +207,7 @@ public class PhotoDetailActivity extends BaseActivity {
      * @param detailed_photo
      */
     private void setExif(final Photo detailed_photo){
-        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), profile, mDefaultImageDrawable);
+        ImageCacheManager.loadImage(Decoder.decodeURL(detailed_photo.user.profile_image.medium), profile, new ColorDrawable(getResources().getColor(DrawableUtil.getDefaultColors()[new Random().nextInt(5)])));
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

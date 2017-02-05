@@ -24,6 +24,7 @@ import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Collection;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
+import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DensityUtils;
 import com.blackzheng.me.piebald.util.DrawableUtil;
@@ -55,7 +56,7 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
 
     private int mTotal;
     private boolean isCurated;
-    private String mId, mTitle, mDescription, mPubTime, mCurator, mProfileURL;
+    private String mId, mTitle, mDescription, mPubTime, mCurator,mCuratorUserName, mCuratorProfileURL, mProfileURL;
     private int mDefaultColor;
     private Collection mCollection;
     private String mOldId;
@@ -160,6 +161,16 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
         total.setText(ResourceUtil.getStringFromRes(this, R.string.total_photos) + " " + mTotal);
         curator.setText(mCurator);
         ImageCacheManager.loadImageWithBlur(Decoder.decodeURL(mProfileURL), profile, mDefaultColor, title);
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CollectionActivity.this, UserAlbumActivity.class);
+                intent.putExtra(UserAlbumActivity.USERNAME, mCuratorUserName);
+                intent.putExtra(UserAlbumActivity.NAME, mCurator);
+                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, mCuratorProfileURL);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initialData(Collection collection) {
@@ -167,7 +178,9 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
         mDescription = collection.description;
         mPubTime = ResourceUtil.getStringFromRes(this, R.string.published_at) + StringUtil.dateFormat(collection.published_at);
         mTotal = collection.total_photos;
-        mCurator =  Decoder.decodeStr(collection.user.name) ;
+        mCurator =  Decoder.decodeStr(collection.user.name);
+        mCuratorUserName = collection.user.username;
+        mCuratorProfileURL = collection.user.profile_image.large;
         mProfileURL = collection.user.profile_image.medium;
         mDataHelper = new PhotoCollectionDataHelper(App.getContext(), mId);
         mLastPage = (int) Math.ceil(mTotal * 1.0 / 10); //最后一页的页号
@@ -244,15 +257,30 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
     }
 
     @Override
-    public void onItemClick(View view, Photo photo, int position) {
-        Intent intent = new Intent(this, PhotoDetailActivity.class);
-        intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
-        intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
-        startActivity(intent);
+    public void onItemClick(View view, Photo photo, int position, int type) {
+        Intent intent = null;
+        LogHelper.d(TAG, "onItem Click: " + type);
+        switch (type){
+            case Constants.TYPE_PHOTO:
+                intent = new Intent(this, PhotoDetailActivity.class);
+                intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
+                intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
+                startActivity(intent);
+                break;
+            case Constants.TYPE_PROFILE:
+                intent = new Intent(this, UserAlbumActivity.class);
+                intent.putExtra(UserAlbumActivity.USERNAME, photo.user.username);
+                intent.putExtra(UserAlbumActivity.NAME, photo.user.name);
+                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
-    public void onItemLongClick(View view, Photo photo, int position) {
+    public void onItemLongClick(View view, Photo photo, int position, int type) {
 
     }
 }

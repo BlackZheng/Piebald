@@ -5,6 +5,7 @@ package com.blackzheng.me.piebald;
  */
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Notification;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.blackzheng.me.piebald.util.Constants;
+import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ToastUtils;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -50,6 +52,10 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 public class App extends Application implements IWXAPIEventHandler {
 
+    private static final String TAG = LogHelper.makeLogTag(App.class);
+    // 取运行内存阈值的1/8作为图片缓存
+    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
+            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 8;
     private static Context sContext;
     private static IWXAPI api;
 
@@ -136,9 +142,10 @@ public class App extends Application implements IWXAPIEventHandler {
 
     // 初始化UniversalImageLoader
     public static void initImageLoader(Context context) {
+        LogHelper.d(TAG, "initImageLoader()- max memory cache size: " + MEM_CACHE_SIZE);
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
                 .threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
-                .memoryCache(new LruMemoryCache(2 * 1024 * 1024)).diskCacheSize(10 * 1024 * 1024)
+                .memoryCache(new LruMemoryCache(MEM_CACHE_SIZE)).diskCacheSize(10 * 1024 * 1024)
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.LIFO)
                 .build();

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
@@ -18,7 +19,6 @@ import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.util.LogHelper;
-import com.blackzheng.me.piebald.view.AdjustableImageView;
 
 import java.util.Random;
 
@@ -37,7 +37,7 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
         super(context, c);
         width = ((WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE))
-                .getDefaultDisplay().getWidth();
+                .getDefaultDisplay().getWidth() / 2;
         mResource = context.getResources();
     }
 
@@ -60,6 +60,16 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
         }else{
             mDefaultImageDrawable = new ColorDrawable(mResource.getColor(DrawableUtil.getDefaultColors()[new Random().nextInt(5)]));
         }
+
+        float scale = 1;
+        //some photo's width may be 0, which will cause FC
+        if(photo.width != 0){
+            scale = (float)photo.height / photo.width;
+        }
+
+        ViewGroup.LayoutParams lp = holder.photo.getLayoutParams();
+        lp.height = (int) (width * scale);
+        holder.photo.setLayoutParams(lp);
         holder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +77,7 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
                 mOnItemClickLitener.onItemClick(holder.photo, photo, pos);
             }
         });
-        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.thumb), holder.photo, DrawableUtil.toSuitableDrawable(mDefaultImageDrawable, width, width*photo.height/photo.width));
+        ImageCacheManager.loadImage(Decoder.decodeURL(photo.urls.thumb), holder.photo, mDefaultImageDrawable);
     }
 
     public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener)
@@ -76,11 +86,11 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        public AdjustableImageView photo;
+        public ImageView photo;
 
         public PhotoViewHolder(View itemView) {
             super(itemView);
-            photo = (AdjustableImageView) itemView.findViewById(R.id.photo);
+            photo = (ImageView) itemView.findViewById(R.id.photo);
         }
     }
 

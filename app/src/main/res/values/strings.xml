@@ -43,6 +43,7 @@
     <string name="phone_permission_showRationale">Please grant Phone permission for this app to work better</string>
     <string name="storage_permision_showRationale">You could not download pictures without the permission, continue to grant?</string>
     <string name="no_permisson_toast">You need to grant the Storage permisson in Setting -> Apps -> Permissions</string>
+    <string name="no_photo_tip">It seems this guy got nothing</string>
     <string name="path">Downloading Path</string>
     <string name="about">About</string>
     <string name="feedback">Feedback</string>
@@ -68,8 +69,8 @@
     <string name="donate_requirement">Require Alipay</string>
 
 
-    <string name="errcode_success">发送成功</string>
-    <string name="errcode_cancel">发送取消</string>
-    <string name="errcode_deny">发送被拒绝</string>
-    <string name="errcode_unknown">发送返回</string>
+    <string name="errcode_success">Sharing succeed</string>
+    <string name="errcode_cancel">Sharing cancel</string>
+    <string name="errcode_deny">Sharing rejected</string>
+    <string name="errcode_unknown">Sharing return</string>
 </resources>

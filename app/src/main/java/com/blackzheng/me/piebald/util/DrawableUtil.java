@@ -2,6 +2,7 @@ package com.blackzheng.me.piebald.util;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,51 +15,15 @@ import android.util.LruCache;
 import com.blackzheng.me.piebald.App;
 import com.blackzheng.me.piebald.R;
 
+import org.apache.velocity.runtime.resource.Resource;
+
 /**
  * Created by BlackZheng on 2016/4/29.
  */
 public class DrawableUtil {
 
     private static final int[] COLORS = {R.color.holo_blue_light, R.color.holo_green_light, R.color.holo_orange_light, R.color.holo_purple_light, R.color.holo_red_light};
-    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
-            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 16;
-    private static final LruCache<String, Bitmap> DRAWABLE_LRU_CACHE = new LruCache<String, Bitmap>(10){
-        @Override
-        protected int sizeOf(String key, Bitmap value) {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-//                return value.getByteCount();
-//            }
-            // Pre HC-MR1
-            return 1;
-        }
-    };
-    /**
-     * 根据宽高得到适当尺寸的Drawable
-     * @param drawable
-     * @param width
-     * @param height
-     * @return
-     */
-    public static Drawable toSuitableDrawable(Drawable drawable, int width, int height) // drawable 转换成bitmap
-    {
-//        BitmapDrawable bd =
-        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?Bitmap.Config.ARGB_8888:Bitmap.Config.RGB_565;// 取drawable的颜色格式
-        Bitmap bitmap = Bitmap.createBitmap(width, height, config);// 建立对应bitmap
-        Canvas canvas = new Canvas(bitmap);// 建立对应bitmap的画布
-        drawable.setBounds(0, 0, width, height);
-        drawable.draw(canvas);// 把drawable内容画到画布中
-        return new BitmapDrawable(bitmap);
-    }
-    public static Drawable getDrawable(String color, int width, int height){
-        Bitmap bitmap = DRAWABLE_LRU_CACHE.get(color);
-        if(bitmap == null){
-            Bitmap.Config config = Bitmap.Config.RGB_565;
-            bitmap = Bitmap.createBitmap(width, height, config);
-            bitmap.eraseColor(Color.parseColor(color));
-            DRAWABLE_LRU_CACHE.put(color, bitmap);
-        }
-        return new BitmapDrawable(bitmap);
-    }
+
     public static int[] getDefaultColors(){
         return COLORS;
     }
