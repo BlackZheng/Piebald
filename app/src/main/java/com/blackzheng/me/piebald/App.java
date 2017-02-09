@@ -37,6 +37,10 @@ import com.umeng.message.IUmengRegisterCallback;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengMessageHandler;
 import com.umeng.message.entity.UMessage;
+//import com.umeng.message.IUmengRegisterCallback;
+//import com.umeng.message.PushAgent;
+//import com.umeng.message.UmengMessageHandler;
+//import com.umeng.message.entity.UMessage;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -53,9 +57,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 public class App extends Application implements IWXAPIEventHandler {
 
     private static final String TAG = LogHelper.makeLogTag(App.class);
-    // 取运行内存阈值的1/8作为图片缓存
-    private static final int MEM_CACHE_SIZE = 1024 * 1024 * ((ActivityManager) App.getContext()
-            .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 8;
+
     private static Context sContext;
     private static IWXAPI api;
 
@@ -70,12 +72,13 @@ public class App extends Application implements IWXAPIEventHandler {
         initDownloader();
         initFontConfig();
         Bmob.initialize(this, Constants.BOMB_KEY);
-        Log.d("geiDeviceInfo", getDeviceInfo(this));
+        Log.d("getDeviceInfo", getDeviceInfo(this));
     }
 
     private void initPush() {
         PushAgent mPushAgent = PushAgent.getInstance(this);
-//        mPushAgent.setDebugMode(true);
+
+        mPushAgent.setDebugMode(BuildConfig.DEBUG);
         UmengMessageHandler messageHandler = new UmengMessageHandler(){
             public Notification getNotification(Context context,
                                                 UMessage msg) {
@@ -102,7 +105,20 @@ public class App extends Application implements IWXAPIEventHandler {
         };
 
         mPushAgent.setMessageHandler(messageHandler);
-        mPushAgent.enable();
+        mPushAgent.register(new IUmengRegisterCallback() {
+
+            @Override
+            public void onSuccess(String deviceToken) {
+                //注册成功会返回device token
+                LogHelper.d(TAG, "deviceToken: " + deviceToken);
+            }
+
+            @Override
+            public void onFailure(String s, String s1) {
+                LogHelper.d(TAG, "fail to register PushAgent");
+            }
+        });
+//        mPushAgent.enable();
 
 
     }
@@ -113,6 +129,7 @@ public class App extends Application implements IWXAPIEventHandler {
         String channel = AnalyticsConfig.getChannel(getContext());
         MobclickAgent. startWithConfigure(new MobclickAgent.UMAnalyticsConfig(getContext(), appKey, channel));
         MobclickAgent.enableEncrypt(true);
+        MobclickAgent.setDebugMode(BuildConfig.DEBUG);
 //        MobclickAgent.setDebugMode(true);
         MobclickAgent.openActivityDurationTrack(false);
     }
@@ -142,10 +159,12 @@ public class App extends Application implements IWXAPIEventHandler {
 
     // 初始化UniversalImageLoader
     public static void initImageLoader(Context context) {
-        LogHelper.d(TAG, "initImageLoader()- max memory cache size: " + MEM_CACHE_SIZE);
+        final int memCacheSize = 1024 * 1024 * ((ActivityManager) App.getContext()
+                .getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 8;
+        LogHelper.d(TAG, "initImageLoader()- max memory cache size: " + memCacheSize);
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
                 .threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
-                .memoryCache(new LruMemoryCache(MEM_CACHE_SIZE)).diskCacheSize(10 * 1024 * 1024)
+                .memoryCache(new LruMemoryCache(memCacheSize)).diskCacheSize(10 * 1024 * 1024)
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.LIFO)
                 .build();

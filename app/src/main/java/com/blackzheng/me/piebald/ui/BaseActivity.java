@@ -72,6 +72,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
+        PushAgent.getInstance(this).onAppStart();
 
     }
 

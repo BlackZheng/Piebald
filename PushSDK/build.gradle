@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 23
+        minSdkVersion 11
+        targetSdkVersion 22
     }
-    useLibrary 'org.apache.http.legacy'
+
     buildTypes {
         release {
             minifyEnabled false
@@ -47,7 +47,5 @@ android {
 }
 
 dependencies {
-    compile 'com.squareup.okio:okio:1.6.0'
-    compile 'com.squareup.wire:wire-runtime:2.1.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

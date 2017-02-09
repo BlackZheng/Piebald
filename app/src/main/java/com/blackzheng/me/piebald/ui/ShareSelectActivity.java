@@ -28,13 +28,13 @@ public class ShareSelectActivity extends AppCompatActivity {
 
     }
     public void shareToWeChat(View view){
+        MobclickAgent.onEvent(this,"shareToWeChat");
         ShareImgToWX.getInstance().shareToWeChat(ShareBitmapHolder.getmBitmap());
-        MobclickAgent.onEvent(this,"ShareToWeChat");
         finish();
     }
     public void shareToTimeline(View view){
-        ShareImgToWX.getInstance().shareToTimeline(ShareBitmapHolder.getmBitmap());
         MobclickAgent.onEvent(this,"shareToTimeline");
+        ShareImgToWX.getInstance().shareToTimeline(ShareBitmapHolder.getmBitmap());
         finish();
     }
 }

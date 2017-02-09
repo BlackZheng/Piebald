@@ -5,10 +5,10 @@ package com.blackzheng.me.piebald.util;
  */
 public class Constants {
 
-    public static final String APP_ID = "1234";
-    public static final String BOMB_KEY = "1234";
-    public static final String YOUMI_APP_ID = "1234";
-    public static final String YOUMI_SECRET = "1234";
+    public static final String APP_ID = "wx_app_id";
+    public static final String BOMB_KEY = "bomb_key";
+    public static final String YOUMI_APP_ID = "youmi_app_id";
+    public static final String YOUMI_SECRET = "youmi_secret";
     public static final int TYPE_PHOTO = 0x0101;
     public static final int TYPE_PROFILE = 0x0102;
 

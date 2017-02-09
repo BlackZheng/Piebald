@@ -1,5 +1,5 @@
 <resources>
-    <string name="version">v2.0.1</string>
+    <string name="version">v2.0.2</string>
     <string name="app_name">Piebald</string>
     <string name="latest">Latest</string>
     <string name="buildings">Buildings</string>

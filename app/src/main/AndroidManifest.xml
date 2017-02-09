@@ -73,14 +73,14 @@
         <!-- 友盟的KEY -->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="1234" />
+            android:value="umeng_appkey" />
 
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="1234" />
+            android:value="umeng_message_secret" />
 
 
     </application>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">v2.0.1</string>
+    <string name="version">v2.0.2</string>
     <string name="app_name">Piebald</string>
     <string name="latest">最新发布</string>
     <string name="buildings">建筑</string>

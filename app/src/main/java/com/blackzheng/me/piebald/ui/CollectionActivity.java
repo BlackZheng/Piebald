@@ -1,13 +1,17 @@
 package com.blackzheng.me.piebald.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,6 +28,7 @@ import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Collection;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
+import com.blackzheng.me.piebald.ui.listener.OnDoubleClickListener;
 import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DensityUtils;
@@ -47,7 +52,8 @@ import rx.schedulers.Schedulers;
 /**
  * 用于显示相册集的界面
  */
-public class CollectionActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnMoreListener, ContentAdapter.OnItemClickLitener {
+public class CollectionActivity extends BaseActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>, OnMoreListener, ContentAdapter.OnItemClickLitener, OnDoubleClickListener {
 
     private static final String TAG = LogHelper.makeLogTag(CollectionActivity.class);
     public static final String ID = "id";
@@ -86,7 +92,53 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
             setupHeaderView();
             startLoadingPhotos();
         }
+        registerDoubleClickListener(mToolbar, this);//给toolbar注册双击监听
+    }
 
+    //实现双击toolbar回到列表顶部
+    public static void registerDoubleClickListener(View view, final OnDoubleClickListener listener){
+        if(listener==null) return;
+        view.setOnClickListener(new View.OnClickListener() {
+            private static final int DOUBLE_CLICK_TIME = 350;        //双击间隔时间350毫秒
+            private boolean waitDouble = true;
+
+            private Handler handler = new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    listener.OnSingleClick((View)msg.obj);
+                }
+
+            };
+
+            //等待双击
+            public void onClick(final View v) {
+                if(waitDouble){
+                    waitDouble = false;        //与执行双击事件
+                    new Thread(){
+
+                        public void run() {
+                            try {
+                                Thread.sleep(DOUBLE_CLICK_TIME);
+                            } catch (InterruptedException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }    //等待双击时间，否则执行单击事件
+                            if(!waitDouble){
+                                //如果过了等待事件还是预执行双击状态，则视为单击
+                                waitDouble = true;
+                                Message msg = handler.obtainMessage();
+                                msg.obj = v;
+                                handler.sendMessage(msg);
+                            }
+                        }
+
+                    }.start();
+                }else{
+                    waitDouble = true;
+                    listener.OnDoubleClick(v);    //执行双击
+                }
+            }
+        });
     }
 
     private void getJson(){
@@ -217,11 +269,12 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
 
         mAdapter = new ContentAdapter(this, null, R.layout.collection_item);
         mAdapter.setOnItemClickLitener(this);
-        list.setLayoutManager(new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL));
+        RecyclerView.LayoutManager layoutManager = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ?
+                new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL) : new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        list.setLayoutManager(layoutManager);
         list.setAdapter(mAdapter);
         list.setupMoreListener(this, 1);
     }
-
 
     @Override
     protected void onDestroy() {
@@ -282,5 +335,15 @@ public class CollectionActivity extends BaseActivity implements LoaderManager.Lo
     @Override
     public void onItemLongClick(View view, Photo photo, int position, int type) {
 
+    }
+
+    @Override
+    public void OnSingleClick(View v) {
+
+    }
+
+    @Override
+    public void OnDoubleClick(View v) {
+        list.getRecyclerView().smoothScrollToPosition(0);
     }
 }

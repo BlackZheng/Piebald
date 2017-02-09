@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.blackzheng.me.piebald.App;
+import com.blackzheng.me.piebald.BuildConfig;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
 import com.blackzheng.me.piebald.ui.fragment.CategoryContentFragment;
@@ -40,9 +41,11 @@ import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.DensityUtils;
 import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ResourceUtil;
+import com.blackzheng.me.piebald.util.ToastUtils;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.umeng.analytics.MobclickAgent;
 
 import net.youmi.android.AdManager;
 
@@ -85,7 +88,6 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
         setContentView(R.layout.activity_main);
         initSplashView();//初始化启动页面
         initAD();
-
         MainActivityPermissionsDispatcher.requestPermissionWithCheck(this); //请求权限
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -151,7 +153,7 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
     }
 
     private void initDrawer(){
-        currentHeaderDrawable = ContextCompat.getDrawable(this, R.drawable.drawer_header_bg);
+        currentHeaderDrawable = ContextCompat.getDrawable(this, R.mipmap.default_drawer_header);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_left);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerToggle.syncState();
@@ -176,12 +178,14 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
         int[] color = new int[]{
                 Color.BLACK, ContextCompat.getColor(this,R.color.colorPrimary)};
         navView.setItemTextColor(new ColorStateList(state, color));
+
         headerImage = (ImageView) navView.getHeaderView(0).findViewById(R.id.drawer_header);
         refreshHeaderImage(headerImage);
         navView.getHeaderView(0).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LogHelper.d(TAG, "click drawer");
+                MobclickAgent.onEvent(MainActivity.this,"click drawer head view");
                 refreshHeaderImage(headerImage);
             }
         });
@@ -193,7 +197,7 @@ public class MainActivity extends BaseActivity implements OnDoubleClickListener{
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .considerExifParams(false)
                 .build();
-        ImageLoader.getInstance().displayImage(String.format(UnsplashAPI.GET_RANDOM_PHOTOS, DensityUtils.dip2px(this, 340f), DensityUtils.dip2px(this, 200f))
+        ImageLoader.getInstance().displayImage(String.format(UnsplashAPI.GET_RANDOM_PHOTOS, DensityUtils.dip2px(this, 280f), DensityUtils.dip2px(this, 200f))
                 , imageView, options, new SimpleImageLoadingListener(){
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
