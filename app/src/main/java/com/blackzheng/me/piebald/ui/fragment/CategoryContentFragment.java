@@ -2,7 +2,6 @@ package com.blackzheng.me.piebald.ui.fragment;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.DefaultDatabaseErrorHandler;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -17,7 +16,7 @@ import com.blackzheng.me.piebald.dao.ContentDataHelper;
 import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.ui.MainActivity;
 import com.blackzheng.me.piebald.ui.PhotoDetailActivity;
-import com.blackzheng.me.piebald.ui.UserAlbumActivity;
+import com.blackzheng.me.piebald.ui.UserPageActivity;
 import com.blackzheng.me.piebald.ui.adapter.BaseAbstractRecycleCursorAdapter;
 import com.blackzheng.me.piebald.ui.adapter.ContentAdapter;
 import com.blackzheng.me.piebald.util.Constants;
@@ -45,6 +44,8 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
         CategoryContentFragment categoryContentFragment = new CategoryContentFragment();
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_CATEGORY, category);
+        bundle.putBoolean(EXTRA_ALLOW_REFRESH, true);
+        bundle.putBoolean(EXTRA_IS_LAZY_LOAD, false);
         categoryContentFragment .setArguments(bundle);
         return categoryContentFragment ;
     }
@@ -122,6 +123,14 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
     }
 
     @Override
+    protected void parseArgument() {
+        Bundle bundle = getArguments();
+        mCategory = bundle.getString(EXTRA_CATEGORY);
+        allowRefresh = bundle.getBoolean(EXTRA_ALLOW_REFRESH, false);
+        isLazyLoad = bundle.getBoolean(EXTRA_IS_LAZY_LOAD);
+    }
+
+    @Override
     protected int getLoaderID() {
         return 0;
     }
@@ -141,10 +150,11 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
                 startActivity(intent);
                 break;
             case Constants.TYPE_PROFILE:
-                intent = new Intent(getActivity(), UserAlbumActivity.class);
-                intent.putExtra(UserAlbumActivity.USERNAME, photo.user.username);
-                intent.putExtra(UserAlbumActivity.NAME, photo.user.name);
-                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
+                intent = new Intent(getActivity(), UserPageActivity.class);
+                intent.putExtra(UserPageActivity.USERNAME, photo.user.username);
+                intent.putExtra(UserPageActivity.USER_ID, photo.user.id);
+                intent.putExtra(UserPageActivity.NAME, photo.user.name);
+                intent.putExtra(UserPageActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
                 startActivity(intent);
                 break;
             default:

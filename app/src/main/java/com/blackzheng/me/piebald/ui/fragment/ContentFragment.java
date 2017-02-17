@@ -32,12 +32,21 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
 
     private static final String TAG = LogHelper.makeLogTag(ContentFragment.class);
     public static final String EXTRA_CATEGORY = "extra_category";
+    public static final String EXTRA_ALLOW_REFRESH = "extra_allow_refresh";
+    public static final String EXTRA_USER_ID = "extra_user_id";
+    public static final String EXTRA_USERNAME = "extra_username";
+    public static final String EXTRA_IS_LAZY_LOAD = "extra_is_lazy_load";
     public static final String NOT_OLD_ID = "not_old_id";
 
     protected String mOldId;//avoid loading the same content repeatedly
     protected int mCurrentPage = 1;
     protected String mCategory;
     protected boolean isRefreshFromTop;
+    protected boolean allowRefresh;
+    protected String mUserId;
+    protected String mUsername;
+    protected boolean isLazyLoad;
+    protected boolean isPrepared = true;
 
     protected int res;
     protected SuperRecyclerView list;
@@ -54,7 +63,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        LogHelper.d(TAG, "onCreateView:" + getClass().getName());
         View rootView = inflater.inflate(R.layout.super_recyclerview, container, false);
         parseArgument();
         //初始化adapter
@@ -68,23 +77,42 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
         list = (SuperRecyclerView) rootView.findViewById(R.id.list);
         list.setLayoutManager(reviewOnScreenChanged(getResources().getConfiguration()));
         list.setAdapter(animAdapter);
-        list.setRefreshingColorResources(android.R.color.holo_orange_light, android.R.color.holo_blue_light,
-                android.R.color.holo_green_light, android.R.color.holo_red_light);
         list.setupMoreListener(this, 1);
-        list.setRefreshListener(this);
 
-        getLoaderManager().initLoader(getLoaderID(), null, this);
-        loadFirst();
+        if(allowRefresh) {
+            list.setRefreshingColorResources(android.R.color.holo_orange_light, android.R.color.holo_blue_light,
+                    android.R.color.holo_green_light, android.R.color.holo_red_light);
+            list.setRefreshListener(this);
+        }
+        isPrepared = false;
         return rootView;
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        LogHelper.d(TAG, "isVisibleToUser: " + isVisibleToUser);
+        if(isVisibleToUser && !isPrepared){
+            startLoading();
+        }
+        super.setUserVisibleHint(isVisibleToUser);
+    }
+
+    private void startLoading(){
+        LogHelper.d(TAG, "startLoading");
+        getLoaderManager().initLoader(getLoaderID(), null, this);
+        loadFirst();
+        isPrepared = true;
+    }
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
-    private void parseArgument() {
-        Bundle bundle = getArguments();
-        mCategory = bundle.getString(EXTRA_CATEGORY);
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(!isLazyLoad || getUserVisibleHint())
+            startLoading();
     }
 
     @Override
@@ -103,7 +131,7 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     *   Method for loading
     */
     private void loadData(int next) {
-        if (!list.getSwipeToRefresh().isRefreshing() && next == 1 ) {
+        if (allowRefresh && !list.getSwipeToRefresh().isRefreshing() && next == 1 ) {
             setRefreshing(true);
         }
         getData(mCategory, String.valueOf(next));
@@ -170,6 +198,11 @@ public abstract class ContentFragment extends BaseFragment implements SwipeRefre
     public RecyclerView getRecyclerView(){
         return list.getRecyclerView();
     }
+
+    /**
+     * 获取参数
+     */
+    protected  abstract void parseArgument();
 
     /**
      * 不同类别的fragment处理不同类型的Bean类，需要有不同的LoaderID，否则会崩溃

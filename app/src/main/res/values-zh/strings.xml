@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">v2.0.2</string>
+    <string name="version">v2.0.3</string>
     <string name="app_name">Piebald</string>
     <string name="latest">最新发布</string>
     <string name="buildings">建筑</string>
@@ -8,9 +8,12 @@
     <string name="nature">自然</string>
     <string name="people">人像</string>
     <string name="technology">科技</string>
-    <string name="objects">杂物</string>
+    <string name="objects">其他</string>
     <string name="featured">特辑</string>
     <string name="curated">编辑整理</string>
+    <string name="photos">作品</string>
+    <string name="collections">收藏</string>
+
     <string name="action_settings">设置</string>
     <string name="share">分享</string>
     <string name="sharr_to">分享到</string>
@@ -43,7 +46,7 @@
     <string name="phone_permission_showRationale">请对应用进行授权以便Piebald能提供更好的服务</string>
     <string name="storage_permision_showRationale">没有下载图片的权限，您是否继续操作以授权</string>
     <string name="no_permisson_toast">您必须在设置 -> 应用程序 -> 权限里授权</string>
-    <string name="no_photo_tip">这个用户好像没有图片诶</string>
+    <string name="no_photo_tip">这里还没有东西诶</string>
     <string name="path">下载路径</string>
     <string name="about">关于</string>
     <string name="feedback">反馈</string>

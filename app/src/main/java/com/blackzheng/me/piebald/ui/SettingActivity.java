@@ -14,6 +14,7 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.dao.CollectionDataHelper;
 import com.blackzheng.me.piebald.dao.PhotoCollectionDataHelper;
 import com.blackzheng.me.piebald.dao.UserAlbumDataHelper;
+import com.blackzheng.me.piebald.dao.UserCollectionsDataHelper;
 import com.blackzheng.me.piebald.util.CacheUtil;
 import com.blackzheng.me.piebald.util.Downloader;
 import com.blackzheng.me.piebald.util.LogHelper;
@@ -97,7 +98,7 @@ public class SettingActivity extends BaseActivity {
             @Override
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
-                size.setText(String.format("%.2f", cacheSize)+ "MB");
+                size.setText(String.format("%.2f", cacheSize) + "MB");
             }
         });
     }
@@ -160,8 +161,8 @@ public class SettingActivity extends BaseActivity {
             protected Void doInBackground(Void... params) {
                 UserAlbumDataHelper.deleteAllRows();
                 CollectionDataHelper.deleteAllRows();
-                int row = PhotoCollectionDataHelper.deleteAllRows();
-                Log.d("database", row + "");
+                PhotoCollectionDataHelper.deleteAllRows();
+                UserCollectionsDataHelper.deleteAllRows();
                 CacheUtil.clearDiskCache();
                 return null;
             }

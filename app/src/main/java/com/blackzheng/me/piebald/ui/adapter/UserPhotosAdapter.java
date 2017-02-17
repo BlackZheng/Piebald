@@ -25,15 +25,15 @@ import java.util.Random;
 /**
  * Created by BlackZheng on 2016/8/17.
  */
-public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbumAdapter.PhotoViewHolder> {
+public class UserPhotosAdapter extends BaseAbstractRecycleCursorAdapter<UserPhotosAdapter.PhotoViewHolder> {
 
-    private static final String TAG = LogHelper.makeLogTag(UserAlbumAdapter.class);
+    private static final String TAG = LogHelper.makeLogTag(UserPhotosAdapter.class);
     private Resources mResource;
     private Drawable mDefaultImageDrawable;
     private OnItemClickLitener mOnItemClickLitener;
     private int width;
 
-    public UserAlbumAdapter(Context context, Cursor c) {
+    public UserPhotosAdapter(Context context, Cursor c) {
         super(context, c);
         width = ((WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE))
@@ -42,7 +42,7 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
     }
 
     @Override
-    public UserAlbumAdapter.PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public UserPhotosAdapter.PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.album_photo_item, parent, false);
         return new PhotoViewHolder(view);
@@ -51,7 +51,7 @@ public class UserAlbumAdapter extends BaseAbstractRecycleCursorAdapter<UserAlbum
 
 
     @Override
-    public void onBindViewHolder(final UserAlbumAdapter.PhotoViewHolder holder, Cursor cursor) {
+    public void onBindViewHolder(final UserPhotosAdapter.PhotoViewHolder holder, Cursor cursor) {
 
         ImageCacheManager.cancelDisplayingTask(holder.photo);
         final Photo photo = Photo.fromCursor(cursor);

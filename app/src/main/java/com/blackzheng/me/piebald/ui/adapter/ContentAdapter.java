@@ -1,7 +1,6 @@
 package com.blackzheng.me.piebald.ui.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -19,8 +18,6 @@ import android.widget.TextView;
 import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
 import com.blackzheng.me.piebald.model.Photo;
-import com.blackzheng.me.piebald.ui.PhotoDetailActivity;
-import com.blackzheng.me.piebald.ui.UserAlbumActivity;
 import com.blackzheng.me.piebald.util.Constants;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.LogHelper;

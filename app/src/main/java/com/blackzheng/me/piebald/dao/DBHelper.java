@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "piebald.db";
 
     // 数据库版本
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
@@ -24,6 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
         UserAlbumDataHelper.ContentDBInfo.TABLE.create(db);
         CollectionDataHelper.ContentDBInfo.TABLE.create(db);
         PhotoCollectionDataHelper.ContentDBInfo.TABLE.create(db);
+        UserCollectionsDataHelper.ContentDBInfo.TABLE.create(db);
     }
 
     @Override
@@ -33,10 +34,18 @@ public class DBHelper extends SQLiteOpenHelper {
                 UserAlbumDataHelper.ContentDBInfo.TABLE.create(db);
                 CollectionDataHelper.ContentDBInfo.TABLE.create(db);
                 PhotoCollectionDataHelper.ContentDBInfo.TABLE.create(db);
+                UserCollectionsDataHelper.ContentDBInfo.TABLE.create(db);
+                break;
             case 2:
                 CollectionDataHelper.ContentDBInfo.TABLE.create(db);
                 PhotoCollectionDataHelper.ContentDBInfo.TABLE.create(db);
+                UserCollectionsDataHelper.ContentDBInfo.TABLE.create(db);
+                break;
+            case 3:
+                UserCollectionsDataHelper.ContentDBInfo.TABLE.create(db);
+                break;
             default:
+                break;
         }
     }
 }

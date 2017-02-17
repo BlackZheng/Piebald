@@ -72,7 +72,7 @@ public class App extends Application implements IWXAPIEventHandler {
         initDownloader();
         initFontConfig();
         Bmob.initialize(this, Constants.BOMB_KEY);
-        Log.d("getDeviceInfo", getDeviceInfo(this));
+        LogHelper.d("getDeviceInfo", getDeviceInfo(this));
     }
 
     private void initPush() {

@@ -81,6 +81,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onResume();
         MobclickAgent.onResume(this);
         PushAgent.getInstance(this).onAppStart();
+        MobclickAgent.onPageStart("SplashScreen");
     }
 
     @Override

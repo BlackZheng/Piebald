@@ -1,5 +1,5 @@
 <resources>
-    <string name="version">v2.0.2</string>
+    <string name="version">v2.0.3</string>
     <string name="app_name">Piebald</string>
     <string name="latest">Latest</string>
     <string name="buildings">Buildings</string>
@@ -10,6 +10,8 @@
     <string name="objects">Objects</string>
     <string name="featured">Featured</string>
     <string name="curated">Curated</string>
+    <string name="photos">Photos</string>
+    <string name="collections">Collections</string>
 
     <string name="action_settings">Settings</string>
     <string name="share">Share</string>
@@ -43,7 +45,7 @@
     <string name="phone_permission_showRationale">Please grant Phone permission for this app to work better</string>
     <string name="storage_permision_showRationale">You could not download pictures without the permission, continue to grant?</string>
     <string name="no_permisson_toast">You need to grant the Storage permisson in Setting -> Apps -> Permissions</string>
-    <string name="no_photo_tip">It seems this guy got nothing</string>
+    <string name="no_photo_tip">There is nothing here</string>
     <string name="path">Downloading Path</string>
     <string name="about">About</string>
     <string name="feedback">Feedback</string>

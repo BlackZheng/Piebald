@@ -35,6 +35,8 @@ public class DataProvider extends ContentProvider {
 
     public static final String PATH_PHOTO_COLLECTION = "/photo_collection";
 
+    public static final String PATH_USER_COLLECTIONS = "/user_collections";
+
     public static final Uri CONTENTS_URI = Uri.parse(SCHEME + AUTHORITY + PATH_CONTENTS);
 
     public static final Uri USERALBUM_URI = Uri.parse(SCHEME + AUTHORITY + PATH_USERALBUM);
@@ -43,6 +45,8 @@ public class DataProvider extends ContentProvider {
 
     public static final Uri PHOTO_COLLECTION_URI = Uri.parse(SCHEME + AUTHORITY + PATH_PHOTO_COLLECTION);
 
+    public static final Uri USER_COLLECTIONS_URI = Uri.parse(SCHEME + AUTHORITY + PATH_USER_COLLECTIONS);
+
     private static final int CONTENTS = 0;
 
     private static final int USERALBUM = 1;
@@ -50,6 +54,8 @@ public class DataProvider extends ContentProvider {
     private static final int COLLECTIONS = 2;
 
     private static final int PHOTO_COLLECTION = 3;
+
+    private static final int USER_COLLECTIONS = 4;
 
     /*
      * MIME type definitions
@@ -62,6 +68,8 @@ public class DataProvider extends ContentProvider {
 
     public static final String PHOTO_COLLECTION_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.photo_collection";
 
+    public static final String USER_COLLECTIONS_TYPE = "vnd.android.cursor.dir/vnd.blackzheng.piebald.user_collections";
+
     private static final UriMatcher sUriMatcher;
 
     static {
@@ -70,6 +78,7 @@ public class DataProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, "useralbum", USERALBUM);
         sUriMatcher.addURI(AUTHORITY, "collections", COLLECTIONS);
         sUriMatcher.addURI(AUTHORITY, "photo_collection", PHOTO_COLLECTION);
+        sUriMatcher.addURI(AUTHORITY, "user_collections", USER_COLLECTIONS);
     }
 
     private static DBHelper mDBHelper;
@@ -120,6 +129,8 @@ public class DataProvider extends ContentProvider {
                 return COLLECTIONS_TYPE;
             case PHOTO_COLLECTION:
                 return PHOTO_COLLECTION_TYPE;
+            case USER_COLLECTIONS:
+                return USER_COLLECTIONS_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -202,9 +213,13 @@ public class DataProvider extends ContentProvider {
             case PHOTO_COLLECTION:
                 table = PhotoCollectionDataHelper.ContentDBInfo.TABLE_NAME;
                 break;
+            case USER_COLLECTIONS:
+                table = UserCollectionsDataHelper.ContentDBInfo.TABLE_NAME;
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         return table;
     }
 }
+

@@ -27,6 +27,9 @@ public interface UnsplashService {
     @GET("users/{username}/photos")
     Observable<List<Photo>> getPhotosByUser(@Path("username") String username, @Query("page") int page, @Query("client_id") String client_id);
 
+    @GET("users/{username}/collections")
+    Observable<List<Collection>> getCollectionsByUser(@Path("username") String username, @Query("page") String page, @Query("client_id") String client_id);
+
     @GET("photos/{id}")
     Observable<Photo> getPhoto(@Path("id") String id, @Query("client_id") String client_id);
 

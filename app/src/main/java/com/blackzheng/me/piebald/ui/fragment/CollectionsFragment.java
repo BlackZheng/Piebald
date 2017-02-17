@@ -31,11 +31,15 @@ import rx.schedulers.Schedulers;
  * Created by BlackZheng on 2016/8/27.
  */
 public class CollectionsFragment extends ContentFragment implements CollectionsListAdapter.OnItemClickLitener {
+
     private static final String TAG = LogHelper.makeLogTag(CollectionsFragment.class);
+
     public static CollectionsFragment newInstance(String category) {
         CollectionsFragment categoryContentFragment = new CollectionsFragment();
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_CATEGORY, category);
+        bundle.putBoolean(EXTRA_ALLOW_REFRESH, true);
+        bundle.putBoolean(EXTRA_IS_LAZY_LOAD, false);
         categoryContentFragment .setArguments(bundle);
         return categoryContentFragment ;
     }
@@ -99,6 +103,14 @@ public class CollectionsFragment extends ContentFragment implements CollectionsL
                     }
                 }, ERRORACTION);
         addSubscription(subscription);
+    }
+
+    @Override
+    protected void parseArgument() {
+        Bundle bundle = getArguments();
+        mCategory = bundle.getString(EXTRA_CATEGORY);
+        allowRefresh = bundle.getBoolean(EXTRA_ALLOW_REFRESH, false);
+        isLazyLoad = bundle.getBoolean(EXTRA_IS_LAZY_LOAD);
     }
 
     @Override

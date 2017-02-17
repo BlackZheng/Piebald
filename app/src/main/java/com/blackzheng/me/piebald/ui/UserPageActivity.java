@@ -1,14 +1,15 @@
 package com.blackzheng.me.piebald.ui;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,18 +20,17 @@ import com.blackzheng.me.piebald.R;
 import com.blackzheng.me.piebald.api.UnsplashAPI;
 import com.blackzheng.me.piebald.dao.UserAlbumDataHelper;
 import com.blackzheng.me.piebald.data.ImageCacheManager;
-import com.blackzheng.me.piebald.model.Photo;
 import com.blackzheng.me.piebald.model.User;
-import com.blackzheng.me.piebald.ui.adapter.UserAlbumAdapter;
+import com.blackzheng.me.piebald.ui.fragment.ContentFragment;
+import com.blackzheng.me.piebald.ui.fragment.UserCollectionsFragment;
+import com.blackzheng.me.piebald.ui.fragment.UserPhotosFragment;
 import com.blackzheng.me.piebald.util.Decoder;
 import com.blackzheng.me.piebald.util.DensityUtils;
 import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.ResourceUtil;
-import com.malinskiy.superrecyclerview.OnMoreListener;
-import com.malinskiy.superrecyclerview.SuperRecyclerView;
+import com.umeng.analytics.MobclickAgent;
 
-import java.util.List;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -39,31 +39,31 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class UserAlbumActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnMoreListener, UserAlbumAdapter.OnItemClickLitener {
+public class UserPageActivity extends BaseActivity {
 
-    private static final String TAG = LogHelper.makeLogTag(UserAlbumActivity.class);
+    private static final String TAG = LogHelper.makeLogTag(UserPageActivity.class);
     public static final String NAME = "name";
     public static final String USERNAME = "username";
+    public static final String USER_ID = "user_id";
     public static final String PROFILE_IMAGE_URL = "profile_image_url";
-    private static final String NOT_OLD_ID = "not_old_id";
 
     private Toolbar mToolbar;
     private CollapsingToolbarLayout title;
     private CircleImageView profile;
     private TextView likes, location, bio;
-    private SuperRecyclerView list;
     private ImageView locIcon;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     private String mUsername;
+    private String mUserId;
     private String mName;
     private String mProfileImageUrl;
     private int mDefaultColor;
-    private UserAlbumAdapter mAdapter;
+    private UserPagerAdapter adapter;
     private User mUser;
-    private UserAlbumDataHelper mDataHelper;
-    private int mPage;
-    private String mOldId;
-    private int mLastPage = 1;
+    private String[] pageTitles;
+    private ContentFragment[] pageFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +73,6 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         initViews();
         setupTitleAndProfile();
         if  (mUser != null){
-            setLastPage(mUser.total_photos);
             setupLikesAndLocationAndBio(mUser);
         }
         else {
@@ -91,7 +90,6 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
                 @Override
                 public void call(User user) {
                     LogHelper.d(TAG,"getUserJson: onNext");
-                    setLastPage(user.total_photos);
                     User.addToCache(user);
                     setupLikesAndLocationAndBio(user);
                 }
@@ -103,21 +101,25 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         if(user.location != null){
             locIcon.setVisibility(View.VISIBLE);
             location.setText(Decoder.decodeStr(user.location));
+            location.setVisibility(View.VISIBLE);
         }
         if(user.bio != null)
             bio.setText(Decoder.decodeStr(" \" " + user.bio + " \""));
+        //number indication
+        pageTitles[0] = pageTitles[0] + " " + user.total_photos ;
+        pageTitles[1] = pageTitles[1] + " " + user.total_collections;
+        adapter.notifyDataSetChanged();
     }
 
     private void setupTitleAndProfile() {
         title.setTitle(Decoder.decodeStr(mName));
         mDefaultColor = DrawableUtil.getDefaultColors()[new Random().nextInt(5)];
         ImageCacheManager.loadImageWithBlur(Decoder.decodeURL(mProfileImageUrl), profile, mDefaultColor, title);
-
     }
 
     private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
+        initActionBar(mToolbar);
         //这里给Toolbar设置MarginTop是为了防止Toolbar被状态栏挡住
         Toolbar.MarginLayoutParams lp = (Toolbar.MarginLayoutParams)mToolbar.getLayoutParams();
         //在4.4以下状态栏不透明，故没有遮挡的问题存在
@@ -135,72 +137,44 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         Typeface tf = Typeface.createFromAsset(getAssets(), "fonts/RobotoCondensed-Bold.ttf");
         title.setCollapsedTitleTypeface(tf);
         title.setExpandedTitleTypeface(tf);
-
+        adapter = new UserPagerAdapter(getSupportFragmentManager());
         profile = (CircleImageView) findViewById(R.id.profile);
         likes = (TextView) findViewById(R.id.likes);
         location = (TextView) findViewById(R.id.location);
         bio = (TextView) findViewById(R.id.bio);
         locIcon = (ImageView) findViewById(R.id.loc_icon);
-        list = (SuperRecyclerView) findViewById(R.id.list);
-        list.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        initActionBar(mToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        mAdapter = new UserAlbumAdapter(this, null);
-        mAdapter.setOnItemClickLitener(this);
-        list.setAdapter(mAdapter);
-        list.setupMoreListener(this, 1);
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
 
     }
 
     private void initialData() {
         Intent intent = getIntent();
         mUsername = intent.getStringExtra(USERNAME);
+        mUserId = intent.getStringExtra(USER_ID);
         mName = intent.getStringExtra(NAME);
         mProfileImageUrl = intent.getStringExtra(PROFILE_IMAGE_URL);
-        mDataHelper = new UserAlbumDataHelper(App.getContext(), mUsername);
-        mOldId = NOT_OLD_ID;
         mUser = User.getFromCache(mUsername);
-    }
-
-    private void setLastPage(int total){
-        mLastPage = (int) Math.ceil(total * 1.0 / 10);
-
+        pageTitles = new String[]{ResourceUtil.getStringFromRes(this, R.string.photos), ResourceUtil.getStringFromRes(this, R.string.collections)};
+        pageFragments = new ContentFragment[]{UserPhotosFragment.newInstance("UserPhotos", mUsername), UserCollectionsFragment.newInstance("UserCollections", mUsername, mUserId)};
     }
 
     private void startLoadingPhotos(){
-        getSupportLoaderManager().initLoader(1, null, this);
-        loadData(1);
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
+
     }
 
-    private void loadData(int next) {
-        Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getPhotosByUser(mUsername, next, UnsplashAPI.CLIENT_ID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new Action1<List<Photo>>() {
-                    @Override
-                    public void call(List<Photo> photos) {
-                        LogHelper.d(TAG, "loadData: onNext count " + photos.size());
-                        if(photos.size() > 0){
-                            String newId = photos.get(0).id;
-                            if (mOldId != null && !mOldId.equals(newId)) {  //avoid loading the same content repeatedly
-                                if(mPage < 2)
-                                    mDataHelper.deleteAll();
-                                mDataHelper.bulkInsert(photos);
-                            }
-                        }else{
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    View emptyView = list.getEmptyView();
-                                    emptyView.findViewById(R.id.empty_tip).setVisibility(View.VISIBLE);
-                                    emptyView.findViewById(R.id.progress).setVisibility(View.GONE);
-                                }
-                            });
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(getClass().getName());
+    }
 
-                        }
-                    }
-                }, ERRORACTION);
-        addSubscription(subscription);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart(getClass().getName());
     }
 
     @Override
@@ -209,44 +183,25 @@ public class UserAlbumActivity extends BaseActivity implements LoaderManager.Loa
         ImageCacheManager.cancelDisplayingTask(profile);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return mDataHelper.getCursorLoader();
-    }
+    class UserPagerAdapter extends FragmentPagerAdapter {
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mPage = (int) Math.ceil(data.getCount() * 1.0 / 10) + 1;
-        if (data.getCount() != 0 && data.moveToFirst()) {
-            mOldId = data.getString(1);
+        public UserPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-        mAdapter.changeCursor(data);
-    }
 
-    @Override
-    public void onLoaderReset(Loader loader) {
-        mAdapter.changeCursor(null);
-    }
+        @Override
+        public Fragment getItem(int position) {
+            return pageFragments[position];
+        }
 
+        @Override
+        public int getCount() {
+            return pageTitles.length;
+        }
 
-    @Override
-    public void onItemClick(View view, Photo photo, int position) {
-        Intent intent = new Intent(this, PhotoDetailActivity.class);
-        intent.putExtra(PhotoDetailActivity.PHOTO_ID, photo.id);
-        intent.putExtra(PhotoDetailActivity.DOWNLOAD_URL, photo.links.download);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onItemLongClick(View view, Photo photo, int position) {
-
-    }
-
-    @Override
-    public void onMoreAsked(int overallItemsCount, int itemsBeforeMore, int maxLastVisiblePosition) {
-        if (mPage > 1 && mPage <= mLastPage)
-            loadData(mPage);
-        else
-            list.hideMoreProgress();
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return pageTitles[position];
+        }
     }
 }

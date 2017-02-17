@@ -56,24 +56,28 @@ public class CollectionsListAdapter extends BaseAbstractRecycleCursorAdapter<Col
         holder.title.setText(collection.title);
         holder.curator.setText(collection.user.name);
         LogHelper.d(TAG, "onBindViewHolder() " + collection.id);
-        if(collection.cover_photo.color != null){
+        float scale = 1;
+        if(collection.total_photos > 0 && collection.cover_photo.color != null){// when the total photo of collections is 0, there is no cover photo
             mDefaultImageDrawable = new ColorDrawable(Color.parseColor(collection.cover_photo.color));
             mDefaultProfileDrawable = new ColorDrawable(Color.parseColor(collection.cover_photo.color));
+            //some photo's width may be 0, which will cause FC
+            if(collection.cover_photo.width != 0){
+                scale = (float)collection.cover_photo.height / collection.cover_photo.width;
+            }
+            ViewGroup.LayoutParams lp = holder.cover_photo.getLayoutParams();
+            lp.height = (int) (mWidth * scale);
+            holder.cover_photo.setLayoutParams(lp);
+            ImageCacheManager.loadImage(Decoder.decodeURL(collection.cover_photo.urls.thumb), holder.cover_photo, mDefaultImageDrawable);
+
         }else{
+            ViewGroup.LayoutParams lp = holder.cover_photo.getLayoutParams();
+            lp.height = (int) (mWidth * scale);
+            holder.cover_photo.setLayoutParams(lp);
             mDefaultImageDrawable = new ColorDrawable(mResource.getColor(COLORS[cursor.getPosition() % COLORS.length]));
             mDefaultProfileDrawable  = new ColorDrawable(mResource.getColor(COLORS[cursor.getPosition() % COLORS.length]));
-        }
-        float scale = 1;
-        //some photo's width may be 0, which will cause FC
-        if(collection.cover_photo.width != 0){
-            scale = (float)collection.cover_photo.height / collection.cover_photo.width;
+            holder.cover_photo.setImageDrawable(mDefaultImageDrawable);
         }
 
-        ViewGroup.LayoutParams lp = holder.cover_photo.getLayoutParams();
-        lp.height = (int) (mWidth * scale);
-        holder.cover_photo.setLayoutParams(lp);
-
-        ImageCacheManager.loadImage(Decoder.decodeURL(collection.cover_photo.urls.thumb), holder.cover_photo, mDefaultImageDrawable);
         ImageCacheManager.loadImage(Decoder.decodeURL(collection.user.profile_image.medium), holder.profile, mDefaultProfileDrawable);
 
         holder.cover_photo.setOnClickListener(new View.OnClickListener() {

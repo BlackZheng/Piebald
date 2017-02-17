@@ -38,6 +38,7 @@ import com.blackzheng.me.piebald.util.ResourceUtil;
 import com.blackzheng.me.piebald.util.StringUtil;
 import com.malinskiy.superrecyclerview.OnMoreListener;
 import com.malinskiy.superrecyclerview.SuperRecyclerView;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 import java.util.Random;
@@ -62,7 +63,7 @@ public class CollectionActivity extends BaseActivity implements
 
     private int mTotal;
     private boolean isCurated;
-    private String mId, mTitle, mDescription, mPubTime, mCurator,mCuratorUserName, mCuratorProfileURL, mProfileURL;
+    private String mId, mTitle, mDescription, mPubTime, mCurator,mCuratorUserName, mCuratorId, mCuratorProfileURL, mProfileURL;
     private int mDefaultColor;
     private Collection mCollection;
     private String mOldId;
@@ -182,8 +183,12 @@ public class CollectionActivity extends BaseActivity implements
                 .map(new Func1<List<Photo>, List<Photo>>() {
                     @Override
                     public List<Photo> call(List<Photo> photos) {
-                        if(photos.isEmpty())   //已经拉到页尾了，隐藏进度圈
+                        if(photos.isEmpty()) {   //已经拉到页尾了，隐藏进度圈
                             list.hideMoreProgress();
+                            View emptyView = list.getEmptyView();
+                            emptyView.findViewById(R.id.empty_tip).setVisibility(View.VISIBLE);
+                            emptyView.findViewById(R.id.progress).setVisibility(View.GONE);
+                        }
                         return photos;
                     }
                 })
@@ -216,10 +221,11 @@ public class CollectionActivity extends BaseActivity implements
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CollectionActivity.this, UserAlbumActivity.class);
-                intent.putExtra(UserAlbumActivity.USERNAME, mCuratorUserName);
-                intent.putExtra(UserAlbumActivity.NAME, mCurator);
-                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, mCuratorProfileURL);
+                Intent intent = new Intent(CollectionActivity.this, UserPageActivity.class);
+                intent.putExtra(UserPageActivity.USERNAME, mCuratorUserName);
+                intent.putExtra(UserPageActivity.USER_ID, mCuratorId);
+                intent.putExtra(UserPageActivity.NAME, mCurator);
+                intent.putExtra(UserPageActivity.PROFILE_IMAGE_URL, mCuratorProfileURL);
                 startActivity(intent);
             }
         });
@@ -231,6 +237,7 @@ public class CollectionActivity extends BaseActivity implements
         mPubTime = ResourceUtil.getStringFromRes(this, R.string.published_at) + StringUtil.dateFormat(collection.published_at);
         mTotal = collection.total_photos;
         mCurator =  Decoder.decodeStr(collection.user.name);
+        mCuratorId = collection.user.id;
         mCuratorUserName = collection.user.username;
         mCuratorProfileURL = collection.user.profile_image.large;
         mProfileURL = collection.user.profile_image.medium;
@@ -274,6 +281,18 @@ public class CollectionActivity extends BaseActivity implements
         list.setLayoutManager(layoutManager);
         list.setAdapter(mAdapter);
         list.setupMoreListener(this, 1);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(getClass().getName());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart(getClass().getName());
     }
 
     @Override
@@ -321,10 +340,11 @@ public class CollectionActivity extends BaseActivity implements
                 startActivity(intent);
                 break;
             case Constants.TYPE_PROFILE:
-                intent = new Intent(this, UserAlbumActivity.class);
-                intent.putExtra(UserAlbumActivity.USERNAME, photo.user.username);
-                intent.putExtra(UserAlbumActivity.NAME, photo.user.name);
-                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
+                intent = new Intent(this, UserPageActivity.class);
+                intent.putExtra(UserPageActivity.USERNAME, photo.user.username);
+                intent.putExtra(UserPageActivity.NAME, photo.user.name);
+                intent.putExtra(UserPageActivity.USER_ID, photo.user.id);
+                intent.putExtra(UserPageActivity.PROFILE_IMAGE_URL, photo.user.profile_image.large);
                 startActivity(intent);
                 break;
             default:

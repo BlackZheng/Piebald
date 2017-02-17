@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class User {
     private static final HashMap<String, User> CACHE = new HashMap<String, User>();
 
+    public String id;
     public String username;
     public String name;
     public String portfolio_url;
@@ -21,6 +22,7 @@ public class User {
     public String location;
     public int total_likes;
     public int total_photos;
+    public int total_collections;
     public Profile_Image profile_image;
 
     public class Profile_Image{

@@ -20,11 +20,13 @@ public class AboutActivity extends BaseActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initActionBar(mToolbar);
     }
+
     public void developer(View view){
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("http://weibo.com/3557851780"));
         startActivity(intent);
     }
+
     public void email(View view){
 //        Intent intent=new Intent(Intent.ACTION_SENDTO);
 //        intent.setData(Uri.parse("mailto:blackzheng22@gmail.com"));

@@ -30,6 +30,7 @@ import com.blackzheng.me.piebald.util.DrawableUtil;
 import com.blackzheng.me.piebald.util.LogHelper;
 import com.blackzheng.me.piebald.util.StringUtil;
 import com.blackzheng.me.piebald.util.ToastUtils;
+import com.umeng.analytics.MobclickAgent;
 
 import net.youmi.android.normal.banner.BannerManager;
 
@@ -211,10 +212,11 @@ public class PhotoDetailActivity extends BaseActivity {
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PhotoDetailActivity.this, UserAlbumActivity.class);
-                intent.putExtra(UserAlbumActivity.USERNAME, detailed_photo.user.username);
-                intent.putExtra(UserAlbumActivity.NAME, detailed_photo.user.name);
-                intent.putExtra(UserAlbumActivity.PROFILE_IMAGE_URL, detailed_photo.user.profile_image.large);
+                Intent intent = new Intent(PhotoDetailActivity.this, UserPageActivity.class);
+                intent.putExtra(UserPageActivity.USERNAME, detailed_photo.user.username);
+                intent.putExtra(UserPageActivity.NAME, detailed_photo.user.name);
+                intent.putExtra(UserPageActivity.USER_ID, detailed_photo.user.id);
+                intent.putExtra(UserPageActivity.PROFILE_IMAGE_URL, detailed_photo.user.profile_image.large);
                 startActivity(intent);
             }
         });
@@ -271,4 +273,15 @@ public class PhotoDetailActivity extends BaseActivity {
         PhotoDetailActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(getClass().getName());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart(getClass().getName());
+    }
 }

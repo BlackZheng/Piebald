@@ -63,24 +63,27 @@
             android:label=""
             android:theme="@style/DialogStyleBottom" />
         <activity
-            android:name=".ui.UserAlbumActivity"
+            android:name=".ui.UserPageActivity"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.CollectionActivity" />
-        <activity android:name=".ui.FeedbackActivity"></activity>
+        <activity
+            android:name=".ui.CollectionActivity" />
+        <activity
+            android:name=".ui.FeedbackActivity"
+            android:label="@string/feedback"/>
 
 
         <!-- 友盟的KEY -->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="umeng_appkey" />
+            android:value="123456" />
 
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="umeng_message_secret" />
+            android:value="123456" />
 
 
     </application>

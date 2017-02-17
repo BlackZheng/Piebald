@@ -84,7 +84,7 @@ public class UnsplashAPI {
     private static File httpCacheDirectory = new File(App.getContext().getCacheDir(), "UnsplashCache");
     private static int cacheSize = 10 * 1024 * 1024; // 10 MiB
     private static Cache cache = new Cache(httpCacheDirectory, cacheSize);
-    private static OkHttpClient client = new OkHttpClient.Builder()
+    public static OkHttpClient client = new OkHttpClient.Builder()
             .addNetworkInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)
             .addInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)
             .cache(cache)
