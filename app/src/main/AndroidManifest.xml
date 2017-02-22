@@ -41,7 +41,8 @@
         <activity
             android:name=".ui.PhotoDetailActivity"
             android:label="@string/details"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.PhotoZoomingActivity"
             android:label="@string/app_name"
@@ -64,7 +65,6 @@
             android:theme="@style/DialogStyleBottom" />
         <activity
             android:name=".ui.UserPageActivity"
-            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.CollectionActivity" />
@@ -76,14 +76,14 @@
         <!-- 友盟的KEY -->
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="123456" />
+            android:value="UMENG_APPKEY" />
 
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="123456" />
+            android:value="UMENG_MESSAGE_SECRET" />
 
 
     </application>

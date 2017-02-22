@@ -213,6 +213,7 @@ public class PhotoDetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PhotoDetailActivity.this, UserPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(UserPageActivity.USERNAME, detailed_photo.user.username);
                 intent.putExtra(UserPageActivity.NAME, detailed_photo.user.name);
                 intent.putExtra(UserPageActivity.USER_ID, detailed_photo.user.id);

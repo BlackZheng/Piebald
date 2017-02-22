@@ -222,6 +222,7 @@ public class CollectionActivity extends BaseActivity implements
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CollectionActivity.this, UserPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(UserPageActivity.USERNAME, mCuratorUserName);
                 intent.putExtra(UserPageActivity.USER_ID, mCuratorId);
                 intent.putExtra(UserPageActivity.NAME, mCurator);
@@ -341,6 +342,7 @@ public class CollectionActivity extends BaseActivity implements
                 break;
             case Constants.TYPE_PROFILE:
                 intent = new Intent(this, UserPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(UserPageActivity.USERNAME, photo.user.username);
                 intent.putExtra(UserPageActivity.NAME, photo.user.name);
                 intent.putExtra(UserPageActivity.USER_ID, photo.user.id);

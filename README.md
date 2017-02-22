@@ -16,7 +16,7 @@ This is my first project for development practice. I'm sure that there are many 
 
 <a href="https://play.google.com/store/apps/details?id=com.blackzheng.me.piebald"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" height="45px" /></a>
 
-[Download Demo](https://github.com/BlackZheng/Piebald/releases/download/v1.0.0/Piebald_v2.0.2.apk)
+[Download Demo](https://github.com/BlackZheng/Piebald/releases/download/v2.0.3/Piebald_v2.0.3.apk)
 
 
 ## Credits

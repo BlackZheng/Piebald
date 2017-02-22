@@ -81,6 +81,12 @@ public class UserPageActivity extends BaseActivity {
         startLoadingPhotos();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        LogHelper.d(TAG, "onNewIntent:" + intent);
+    }
+
     private void getUserJson(String username){
         LogHelper.d(TAG, "getUserJson");
         Subscription subscription = UnsplashAPI.getInstance().getUnsplashService().getUserByUsername(username, UnsplashAPI.CLIENT_ID)

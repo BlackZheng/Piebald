@@ -151,6 +151,7 @@ public class CategoryContentFragment extends ContentFragment implements ContentA
                 break;
             case Constants.TYPE_PROFILE:
                 intent = new Intent(getActivity(), UserPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra(UserPageActivity.USERNAME, photo.user.username);
                 intent.putExtra(UserPageActivity.USER_ID, photo.user.id);
                 intent.putExtra(UserPageActivity.NAME, photo.user.name);
